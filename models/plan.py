@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, DateTime
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 # Plan Data
@@ -7,13 +7,13 @@ class Plan(Base):
     __tablename__ = "plan"
 
     id = Column(Integer, primary_key=True, index=True)
-    state = Column(Enum("Undone", "Editting", "Done", name="state"), default="Undone")
+    madedate = Column(String)
     company = Column(String)
     lot = Column(String)
     material_unit = Column(String)
     material_amount= Column(Integer)
     product_name = Column(String)
-    product_unit = Column(String, unique = True)
+    product_unit = Column(String)
     amount = Column(Integer)
     deadline = Column(DateTime)
     note = Column(String)
@@ -23,7 +23,6 @@ class Plan(Base):
     def result(self):
         return {
             "id": self.id,
-            "state": self.state,
             "company": self.company,
             "lot": self.lot,
             "material_unit": self.material_unit,

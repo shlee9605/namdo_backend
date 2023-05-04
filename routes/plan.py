@@ -2,8 +2,9 @@ from fastapi import APIRouter, HTTPException, Request, responses, Depends
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from models.plan import Plan
 from models import postgresql
+
+from models.plan import Plan
 from services import plan_service
 
 router = APIRouter()
@@ -16,7 +17,7 @@ async def plan_root(request: Request, session: Session=Depends()):
         params = await request.json()
 
         params = Plan(
-            state = params.get('state'),
+            madedate = params.get('madedate'),
             company= params.get('company'),
             lot = params.get('lot'),
             material_unit = params.get('material_unit'),
@@ -30,17 +31,62 @@ async def plan_root(request: Request, session: Session=Depends()):
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
     
-    # 2. Execute Bussiness Logic
-    response = await plan_service.input_plan(params)
+    # 2. Execute Business Logic
+    response = await plan_service.input(params)
     
     # 3. Response
     return response.result()
 
 # read plan data
-@router.get("/plan", status_code=200)
-async def plan_root(request: Request, param: Optional[str] = None):
-    # 1. Execute Buissness Logic
-    response = await plan_service.output_plan(None)
+@router.get("/plan/{madedate}", status_code=200)
+async def plan_root(madedate, request: Request):
+    # 1. Execute Business Logic
+    response = await plan_service.output(madedate)
 
     # 2. Reponse
+    return response
+
+# update plan data
+@router.put("/plan/{id}", status_code=200)
+async def plan_root(id, request: Request):
+    # 1. Check Request
+    try:
+        params = await request.json()
+
+        params = Plan(
+            id = id,
+            madedate = params.get('madedate'),
+            company= params.get('company'),
+            lot = params.get('lot'),
+            material_unit = params.get('material_unit'),
+            material_amount = params.get('material_amount'),
+            product_name= params.get('product_name'),
+            product_unit= params.get('product_unit'),
+            amount = params.get('amount'),
+            deadline= params.get('deadline'),
+            note = params.get('note')
+        )
+    except:
+        raise HTTPException(status_code=400, detail="Bad Request")
+    
+    # 2. Execute Business Logic
+    response = await plan_service.edit(params)
+    response = params
+
+    # 3. Response
+    return response
+
+# delete plan data
+@router.delete("/plan/{id}", status_code=200)
+async def plan_root(id, request: Request):
+    # 1. Check Request
+    if id is not None:
+        params = id
+    else:
+        raise HTTPException(status_code=400, detail="Bad Request")
+    # 2. Execute Business Logic
+    response = await plan_service.erase(params)
+    response = params
+
+    # 3. Response
     return response

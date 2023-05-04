@@ -1,5 +1,5 @@
 import os
-from models import users, plan
+from models import users, plan, process, facility, bom
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -17,6 +17,9 @@ class PostgreSQL:
 
         users.Base.metadata.create_all(bind = self.engine)
         plan.Base.metadata.create_all(bind = self.engine)
+        process.Base.metadata.create_all(bind = self.engine)
+        facility.Base.metadata.create_all(bind = self.engine)
+        bom.Base.metadata.create_all(bind = self.engine)
         
         print("db connected")
     
