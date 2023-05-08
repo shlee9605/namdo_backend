@@ -17,6 +17,7 @@ async def plan_root(request: Request, session: Session=Depends()):
         params = await request.json()
 
         params = Plan(
+            id = params.get('id'),
             madedate = params.get('madedate'),
             company= params.get('company'),
             lot = params.get('lot'),
@@ -42,6 +43,15 @@ async def plan_root(request: Request, session: Session=Depends()):
 async def plan_root(madedate, request: Request):
     # 1. Execute Business Logic
     response = await plan_service.output(madedate)
+    
+    # 2. Reponse
+    return response
+
+# read madedate data
+@router.get("/madedate", status_code=200)
+async def plan_root(request: Request):
+    # 1. Execute Business Logic
+    response = postgresql.session.query(Plan.madedate).distinct().all()
 
     # 2. Reponse
     return response

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 # Plan Data
@@ -11,11 +11,11 @@ class Plan(Base):
     company = Column(String)
     lot = Column(String)
     material_unit = Column(String)
-    material_amount= Column(Integer)
+    material_amount= Column(String)
     product_name = Column(String)
     product_unit = Column(String)
-    amount = Column(Integer)
-    deadline = Column(DateTime)
+    amount = Column(String)
+    deadline = Column(String)
     note = Column(String)
     
     # deletedAt: datetime = Field(default=None, nullable=True)
