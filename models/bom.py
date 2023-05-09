@@ -7,7 +7,7 @@ class BOM(Base):
     __tablename__ = "bom"
 
     id = Column(Integer, primary_key=True, index=True)
-    state = Column(Enum("Undone", "Editting", "Done", name="state"), default="Undone")
+    # state = Column(Enum("Undone", "Editting", "Done", name="state"), default="Undone")
     product_unit = Column(String)
     process_name = Column(String)
     process_order = Column(Integer)
@@ -17,7 +17,7 @@ class BOM(Base):
     def result(self):
         return {
             "id": self.id,
-            "state": self.state,
+            # "state": self.state,
             "product_unit": self.product_unit,
             "process_name": self.process_name,
             "process_order": self.process_order,

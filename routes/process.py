@@ -11,7 +11,7 @@ router = APIRouter()
 
 # create process data
 @router.post("/process", status_code=201)
-async def plan_root(request: Request, session: Session=Depends()):
+async def process_root(request: Request, session: Session=Depends()):
     # 1. Check Request
     try:
         params = await request.json()
@@ -30,7 +30,7 @@ async def plan_root(request: Request, session: Session=Depends()):
 
 # read process data
 @router.get("/process/all", status_code=200)
-async def plan_root(request: Request, param: Optional[str] = None):
+async def process_root(request: Request, param: Optional[str] = None):
     # 1. Execute Business Logic
     response = await process_service.output()
 
@@ -39,7 +39,7 @@ async def plan_root(request: Request, param: Optional[str] = None):
 
 # update process data
 @router.put("/process", status_code=200)
-async def plan_root(request: Request):
+async def process_root(request: Request):
     # 1. Check Request
     try:
         params = await request.json()
@@ -60,7 +60,7 @@ async def plan_root(request: Request):
 
 # delete process data
 @router.delete("/process", status_code=200)
-async def plan_root(request: Request, param: str):
+async def process_root(request: Request, param: str):
     # 1. Check Request
     if param is not None:
         params = param

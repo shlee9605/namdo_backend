@@ -1,5 +1,6 @@
 import os
 from models import users, plan, process, facility, bom
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -12,6 +13,7 @@ class PostgreSQL:
     
     async def connect(self):
         self.engine = create_engine(os.environ["POSTGRESQL_URL"])
+        # self.engine = create_async_engine(os.environ["POSTGRESQL_URL"])
         sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self.session = sessionLocal()
 

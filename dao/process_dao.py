@@ -40,29 +40,29 @@ async def read(params):
     return result
 
 # Update Process Data
-async def update(old_params, new_params):
+async def update(params, new_params):
     # 1. Update Process Data
     try:
-        result = await read(old_params)
-        result.process_name = new_params
+        # result = await read(old_params)
+        params.process_name = new_params
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=500, detail="Update Process Data Failed")
     
     # 2. Return at Success
-    return result
+    return params
 
 # Delete Process Data
 async def delete(params):
     # 1. Delete Process Data
     try:
-        result = postgresql.session.query(Process).filter(Process.process_name==params).first()
-        postgresql.session.delete(result)
+        # result = postgresql.session.query(Process).filter(Process.process_name==params).first()
+        postgresql.session.delete(params)
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=500, detail="Delete Process Data Failed")
     
     # 2. Return at Success
-    return result
+    return params

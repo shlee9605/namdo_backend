@@ -41,29 +41,27 @@ async def read(params):
 
 
 # Update Facility Data
-async def update(old_params, new_params):
+async def update(params, new_params):
     # 1. Update Facility Data
     try:
-        result = await read(old_params)
-        result.facility_name = new_params
+        params.facility_name = new_params
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=500, detail="Update Facility Data Failed")
     
     # 2. Return at Success
-    return result
+    return params
 
 # Delete Facility Data
 async def delete(params):
     # 1. Delete Facility Data
     try:
-        result = postgresql.session.query(Facility).filter(Facility.facility_name==params).first()
-        postgresql.session.delete(result)
+        postgresql.session.delete(params)
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=500, detail="Delete Facility Data Failed")
     
     # 2. Return at Success
-    return result
+    return params

@@ -20,16 +20,26 @@ async def output():
 
 # edit process data
 async def edit(params):
-    # 1. edit process
-    result = await process_dao.update(params['old_process_name'], params['new_process_name'])
+    # 1. find data
+    result = await process_dao.read(params['old_process_name'])
+    if result is None:
+        raise HTTPException(status_code=400, detail="No Existing Process Data")
+
+    # 2. edit process
+    result = await process_dao.update(result, params['new_process_name'])
     
-    # 2. return at success
+    # 3. return at success
     return result
 
 # erase process data
 async def erase(params):
-    # 1. erase process
-    result = await process_dao.delete(params)
+    # 1. find data
+    result = await process_dao.read(params)
+    if result is None:
+        raise HTTPException(status_code=400, detail="No Existing Process Data")
+
+    # 2. erase process
+    result = await process_dao.delete(result)
     
     # 2. return at success
     return result

@@ -18,6 +18,7 @@ async def plan_root(request: Request, session: Session=Depends()):
 
         params = Plan(
             id = params.get('id'),
+            # state = params.get('state'),
             madedate = params.get('madedate'),
             company= params.get('company'),
             lot = params.get('lot'),
@@ -60,6 +61,9 @@ async def plan_root(request: Request):
 @router.put("/plan/{id}", status_code=200)
 async def plan_root(id, request: Request):
     # 1. Check Request
+    if id is None:
+        raise HTTPException(status_code=400, detail="Bad Request(id)")
+        
     try:
         params = await request.json()
 
@@ -77,7 +81,7 @@ async def plan_root(id, request: Request):
             note = params.get('note')
         )
     except:
-        raise HTTPException(status_code=400, detail="Bad Request")
+        raise HTTPException(status_code=400, detail="Bad Request(body)")
     
     # 2. Execute Business Logic
     response = await plan_service.edit(params)
@@ -94,6 +98,7 @@ async def plan_root(id, request: Request):
         params = id
     else:
         raise HTTPException(status_code=400, detail="Bad Request")
+    
     # 2. Execute Business Logic
     response = await plan_service.erase(params)
     response = params

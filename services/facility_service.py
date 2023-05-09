@@ -10,7 +10,7 @@ async def input(params):
     # 2. return at success
     return result
 
-# output facility data
+# output all facility data
 async def output():
     # 1. output plan
     result = await facility_dao.read_all()
@@ -20,16 +20,26 @@ async def output():
 
 # edit facility data
 async def edit(params):
-    # 1. edit process
-    result = await facility_dao.update(params['old_facility_name'], params['new_facility_name'])
+    # 1. find data
+    result = await facility_dao.read(params['old_facility_name'])
+    if result is None:
+        raise HTTPException(status_code=400, detail="No Existing Facility Data")
+
+    # 2. edit process
+    result = await facility_dao.update(result, params['new_facility_name'])
     
-    # 2. return at success
+    # 3. return at success
     return result
 
 # erase process data
 async def erase(params):
-    # 1. erase process
-    result = await facility_dao.delete(params)
+    # 1. find data
+    result = await facility_dao.read(params)
+    if result is None:
+        raise HTTPException(status_code=400, detail="No Existing Facility Data")
     
-    # 2. return at success
+    # 2. erase process
+    result = await facility_dao.delete(result)
+    
+    # 3. return at success
     return result
