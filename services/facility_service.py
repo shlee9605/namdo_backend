@@ -26,7 +26,7 @@ async def edit(params):
         raise HTTPException(status_code=400, detail="No Existing Facility Data")
 
     # 2. edit process
-    result = await facility_dao.update(result, params['new_facility_name'])
+    await facility_dao.update(result, params['new_facility_name'])
     
     # 3. return at success
     return result
@@ -39,7 +39,7 @@ async def erase(params):
         raise HTTPException(status_code=400, detail="No Existing Facility Data")
     
     # 2. erase process
-    result = await facility_dao.delete(result)
+    await facility_dao.delete(result)
     
     # 3. return at success
     return result

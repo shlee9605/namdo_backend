@@ -52,11 +52,10 @@ async def process_root(request: Request):
         raise HTTPException(status_code=400, detail="Bad Request")
     
     # 2. Execute Business
-    await process_service.edit(params)
-    response = params
+    response = await process_service.edit(params)
 
     # 3. response
-    return response
+    return response.result()
 
 # delete process data
 @router.delete("/process", status_code=200)
@@ -69,7 +68,6 @@ async def process_root(request: Request, param: str):
     
     # 2. Execute Business
     response = await process_service.erase(params)
-    response = params
     
     # 3. response
     return response

@@ -85,10 +85,9 @@ async def plan_root(id, request: Request):
     
     # 2. Execute Business Logic
     response = await plan_service.edit(params)
-    response = params
 
     # 3. Response
-    return response
+    return response.result()
 
 # delete plan data
 @router.delete("/plan/{id}", status_code=200)
@@ -101,7 +100,6 @@ async def plan_root(id, request: Request):
     
     # 2. Execute Business Logic
     response = await plan_service.erase(params)
-    response = params
 
     # 3. Response
     return response

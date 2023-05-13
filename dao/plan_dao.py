@@ -40,38 +40,37 @@ async def read_by_date(params):
     return result
 
 # Update Plan Data
-async def update(id, params):
+async def update(params, new_params):
     # 1. Update Plan Data
     try:
-        result = await read(id)
-        result.madedate = params.madedate
-        result.company = params.company
-        result.lot = params.lot
-        result.material_unit = params.material_unit
-        result.material_amount = params.material_amount
-        result.product_name = params.product_name
-        result.product_unit = params.product_unit
-        result.amount = params.amount
-        result.deadline = params.deadline
-        result.note = params.note
+        params.madedate = new_params.madedate
+        params.company = new_params.company
+        params.lot = new_params.lot
+        params.material_unit = new_params.material_unit
+        params.material_amount = new_params.material_amount
+        params.product_name = new_params.product_name
+        params.product_unit = new_params.product_unit
+        params.amount = new_params.amount
+        params.deadline = new_params.deadline
+        params.note = new_params.note
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=500, detail="Update Plan Data Failed")
 
     # 2. Return at Success
-    return result
+    return params
 
 # Delete Plan Data
 async def delete(params):
     # 1. Delete Plan Data
     try:
-        result = postgresql.session.query(Plan).filter(Plan.id==params).first()
-        postgresql.session.delete(result)
+        # result = postgresql.session.query(Plan).filter(Plan.id==params).first()
+        postgresql.session.delete(params)
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=500, detail="Delete Plan Data Failed")
 
     # 2. Return at Success
-    return result
+    return params

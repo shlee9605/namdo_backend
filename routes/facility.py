@@ -53,10 +53,9 @@ async def facility_root(request: Request):
     
     # 2. Execute Business
     response = await facility_service.edit(params)
-    response = params
 
     # 3. response
-    return response
+    return response.result()
 
 # delete facility data
 @router.delete("/facility", status_code=200)
@@ -69,7 +68,6 @@ async def facility_root(request: Request, param: str):
     
     # 2. Execute Business
     response = await facility_service.erase(params)
-    response = params
     
     # 3. response
     return response
