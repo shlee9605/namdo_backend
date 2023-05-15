@@ -1,13 +1,13 @@
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
 # Plan Data
-Base = declarative_base()
+Base = declarative_base(metadata=MetaData(schema="namdo"))
 class Plan(Base):
     __tablename__ = "plan"
 
     id = Column(Integer, primary_key=True, index=True)
-    state = Column(Enum("Undone", "Editting", "Done", name="state"), default="Undone")
+    state = Column(Enum("Undone", "Editting", "Done", name="state", schema="namdo"), default="Undone")
     madedate = Column(String)
     company = Column(String)
     lot = Column(String)

@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
 # Facility Data
-Base = declarative_base()
+Base = declarative_base(metadata=MetaData(schema="namdo"))
 class Facility(Base):
     __tablename__ = "facility"
 

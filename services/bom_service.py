@@ -18,6 +18,8 @@ async def input(params):
     # for order in result:
     #     if order.process_order is params.process_order:
     #         raise HTTPException(status_code=400, detail="Existing Order, Order Can Only Be Unique Data")
+    #     if order.id is params.id:
+    #         raise HTTPException(status_code=400, detail="Existing ID, Order Can Only Be Unique Data")
 
     # 3. input bom
     result = await bom_dao.create(params)

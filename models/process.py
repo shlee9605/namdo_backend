@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
 # Process Data
-Base = declarative_base()
+Base = declarative_base(metadata=MetaData(schema="namdo"))
 class Process(Base):
     __tablename__ = "process"
 

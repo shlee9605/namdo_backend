@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 # from models import Base
 # from datetime import datetime
 
 
-Base = declarative_base()
+Base = declarative_base(metadata=MetaData(schema="namdo"))
 class Users(Base):
     __tablename__ = "users"
 

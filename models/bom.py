@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, Enum, DateTime
+from sqlalchemy import Column, Integer, String, Enum, DateTime, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
 # BOM Data
-Base = declarative_base()
+Base = declarative_base(metadata=MetaData(schema="namdo"))
 class BOM(Base):
     __tablename__ = "bom"
 

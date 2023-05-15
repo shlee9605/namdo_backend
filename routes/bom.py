@@ -17,10 +17,10 @@ async def bom_root(product_unit, request: Request, session: Session=Depends()):
         params = await request.json()
 
         params = BOM(
-            id=params.get('id'),
+            # id=params.get('id'),
             product_unit = product_unit,
             process_name = params.get('process_name'),
-            process_order = params.get('process_order'),
+            # process_order = params.get('process_order'),
         )
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
@@ -35,6 +35,9 @@ async def bom_root(product_unit, request: Request, session: Session=Depends()):
 @router.get("/bom/{product_unit}", status_code=200)
 async def bom_root(product_unit, request: Request):
     # 1. Execute Business Logic
+    if product_unit is None:
+        raise HTTPException(status_code=400, detail="Bad Request(uri missing)")
+    
     response = await bom_service.output(product_unit)
     
     # 2. Reponse
@@ -45,7 +48,7 @@ async def bom_root(product_unit, request: Request):
 async def bom_root(id, request: Request):
     # 1. Check Request
     if id is None:
-        raise HTTPException(status_code=400, detail="Bad Request(product_unit missing)")
+        raise HTTPException(status_code=400, detail="Bad Request(uri missing)")
     
     try:
         params = await request.json()
