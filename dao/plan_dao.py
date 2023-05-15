@@ -12,7 +12,7 @@ async def create(params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Create Plan Data Failed")
+        raise HTTPException(status_code=406, detail="Create Plan Data Failed")
     
     # 2. Return at Success
     return params
@@ -23,7 +23,7 @@ async def read(params):
     try:
         result = postgresql.session.query(Plan).filter(Plan.id==params).first()
     except:
-        raise HTTPException(status_code=500, detail="Read Plan Data by ID Failed")
+        raise HTTPException(status_code=406, detail="Read Plan Data by ID Failed")
 
     # 2. Return at Success
     return result
@@ -34,7 +34,7 @@ async def read_by_date(params):
     try:
         result = postgresql.session.query(Plan).filter(Plan.madedate==params).order_by(asc(Plan.id)).all()
     except:
-        raise HTTPException(status_code=500, detail="Read Date Plan Data Failed")
+        raise HTTPException(status_code=406, detail="Read Date Plan Data Failed")
     
     # 2. Return at Success
     return result
@@ -56,7 +56,7 @@ async def update(params, new_params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Update Plan Data Failed")
+        raise HTTPException(status_code=406, detail="Update Plan Data Failed")
 
     # 2. Return at Success
     return params
@@ -70,7 +70,7 @@ async def delete(params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Delete Plan Data Failed")
+        raise HTTPException(status_code=406, detail="Delete Plan Data Failed")
 
     # 2. Return at Success
     return params

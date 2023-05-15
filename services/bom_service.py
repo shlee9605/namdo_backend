@@ -33,13 +33,18 @@ async def output(params):
     # 2. return at success
     return result
 
-# # edit bom data
-# async def edit(params):
-#     # 1. edit bom
-#     result = await plan_dao.update(params.id, params)
+# edit bom data
+async def edit(params):
+    # 1. find data
+    result = await bom_dao.read(params.id)
+    if result is None:
+        raise HTTPException(status_code=400, detail="No Existing BOM Data")
     
-#     # 2. return at success
-#     return result
+    # 2. edit bom
+    await bom_dao.update(result, params)
+    
+    # 3. return at success
+    return result
 
 # # erase bom data
 async def erase(params):

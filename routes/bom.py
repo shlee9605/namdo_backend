@@ -51,28 +51,21 @@ async def bom_root(id, request: Request):
         params = await request.json()
         params = BOM(
             id=id,
-            # product_unit = product_unit,
-            # process_name = params.get('process_name'),
             process_order = params.get('process_order'),
         )
-        # params = {
-        #     "old_process_order": params.get('old_process_order'),
-        #     "new_process_order": params.get('new_process_order')
-        # }
+
     except:
         raise HTTPException(status_code=400, detail="Bad Request(body)")
     
     # 2. Execute Business Logic
-    response = postgresql.session.query(BOM).filter(BOM.id==id).first()
-    response.process_order = params.process_order
-    # response = postgresql.session.query(BOM).filter(and_(BOM.product_unit==product_unit, BOM.process_order==params["old_process_order"])).first()
-    # response.process_order = params['new_process_order']
-    postgresql.session.commit()
+    # response = postgresql.session.query(BOM).filter(BOM.id==id).first()
+    # response.process_order = params.process_order
+    # postgresql.session.commit()
 
-    response = params
+    response = await bom_service.edit(params)
 
     # 3. Response
-    return response
+    return response.result()
 
 # delete facility data
 @router.delete("/bom/{id}", status_code=200)

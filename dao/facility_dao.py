@@ -12,7 +12,7 @@ async def create(params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Create Facility Data Failed")
+        raise HTTPException(status_code=406, detail="Create Facility Data Failed")
     
     # 2. Return at Success
     return params
@@ -23,7 +23,7 @@ async def read_all():
     try:
         result = postgresql.session.query(Facility).order_by(asc(Facility.facility_name)).all()
     except:
-        raise HTTPException(status_code=500, detail="Read All Facility Data Failed")
+        raise HTTPException(status_code=406, detail="Read All Facility Data Failed")
     
     # 2. Return at Success
     return result
@@ -34,7 +34,7 @@ async def read(params):
     try:
         result = postgresql.session.query(Facility).filter(Facility.facility_name==params).first()
     except:
-        raise HTTPException(status_code=500, detail="Read Facility Data Failed")
+        raise HTTPException(status_code=406, detail="Read Facility Data Failed")
     
     # 2. Return at Success
     return result
@@ -48,7 +48,7 @@ async def update(params, new_params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Update Facility Data Failed")
+        raise HTTPException(status_code=406, detail="Update Facility Data Failed")
     
     # 2. Return at Success
     return params
@@ -61,7 +61,7 @@ async def delete(params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Delete Facility Data Failed")
+        raise HTTPException(status_code=406, detail="Delete Facility Data Failed")
     
     # 2. Return at Success
     return params

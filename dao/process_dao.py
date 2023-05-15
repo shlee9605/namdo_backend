@@ -12,7 +12,7 @@ async def create(params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Create Process Data Failed")
+        raise HTTPException(status_code=406, detail="Create Process Data Failed")
     
     # 2. Return at Success
     return params
@@ -23,7 +23,7 @@ async def read_all():
     try:
         result = postgresql.session.query(Process).order_by(asc(Process.process_name)).all()
     except:
-        raise HTTPException(status_code=500, detail="Read All Process Data Failed")
+        raise HTTPException(status_code=406, detail="Read All Process Data Failed")
     
     # 2. Return at Success
     return result
@@ -34,7 +34,7 @@ async def read(params):
     try:
         result = postgresql.session.query(Process).filter(Process.process_name==params).first()
     except:
-        raise HTTPException(status_code=500, detail="Read Process Data Failed")
+        raise HTTPException(status_code=406, detail="Read Process Data Failed")
     
     # 2. Return at Success
     return result
@@ -48,7 +48,7 @@ async def update(params, new_params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Update Process Data Failed")
+        raise HTTPException(status_code=406, detail="Update Process Data Failed")
     
     # 2. Return at Success
     return params
@@ -62,7 +62,7 @@ async def delete(params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Delete Process Data Failed")
+        raise HTTPException(status_code=406, detail="Delete Process Data Failed")
     
     # 2. Return at Success
     return params

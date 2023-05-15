@@ -13,7 +13,7 @@ async def create(params):
         postgresql.session.commit()
     except:
         postgresql.session.rollback()
-        raise HTTPException(status_code=500, detail="Create BOM Data Failed")
+        raise HTTPException(status_code=406, detail="Create BOM Data Failed")
     
     # 2. Return at Success
     return params
@@ -24,7 +24,7 @@ async def read(params):
     try:
         result = postgresql.session.query(BOM).filter(BOM.id==params).first()
     except:
-        raise HTTPException(status_code=500, detail="Read BOM Data by ID Failed")
+        raise HTTPException(status_code=406, detail="Read BOM Data by ID Failed")
 
     # 2. Return at Success
     return result
@@ -35,33 +35,23 @@ async def read_by_unit(params):
     try:
         result = postgresql.session.query(BOM).filter(BOM.product_unit==params).order_by(asc(BOM.process_order)).all()
     except:
-        raise HTTPException(status_code=500, detail="Read BOM Data Failed")
+        raise HTTPException(status_code=406, detail="Read BOM Data Failed")
     
     # 2. Return at Success
     return result
 
 # Update BOM Data
-# async def update(id, params):
-#     # 1. Update Plan Data
-#     try:
-#         result = await read(id)
-#         result.madedate = params.madedate
-#         result.company = params.company
-#         result.lot = params.lot
-#         result.material_unit = params.material_unit
-#         result.material_amount = params.material_amount
-#         result.product_name = params.product_name
-#         result.product_unit = params.product_unit
-#         result.amount = params.amount
-#         result.deadline = params.deadline
-#         result.note = params.note
-#         postgresql.session.commit()
-#     except:
-#         postgresql.session.rollback()
-#         raise HTTPException(status_code=500, detail="Update Plan Data Failed")
+async def update(params, new_params):
+    # 1. Update BOM Data
+    try:
+        params.process_order = new_params.process_order
+        postgresql.session.commit()
+    except:
+        postgresql.session.rollback()
+        raise HTTPException(status_code=406, detail="Update Plan Data Failed")
 
-#     # 2. Return at Success
-#     return result
+    # 2. Return at Success
+    return params
 
 # Delete BOM Data
 async def delete(params):
@@ -77,13 +67,13 @@ async def delete(params):
 
         # commit
         postgresql.session.commit()
-        
+
     except SQLAlchemyError as e:
         postgresql.session.rollback()
         if "delete" in str(e):
-            raise HTTPException(status_code=500, detail="Delete BOM Data Failed")
+            raise HTTPException(status_code=406, detail="Delete BOM Data Failed")
         else:
-            raise HTTPException(status_code=500, detail="Ordering BOM Data Failed")
+            raise HTTPException(status_code=406, detail="Ordering BOM Data Failed")
 
     # 2. Return at Success
     return params
