@@ -10,7 +10,6 @@ async def input(params):
     # 2. modify order
     if len(result) == 0:
         params.process_order = 1
-        print(len(result))
     else:
         params.process_order = len(result) + 1
 

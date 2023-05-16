@@ -14,7 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
 # Define environment variable
-ENV NAME World
+# ENV NAME World
 
 # Run main.py when the container launches
-CMD ["python", "main.py"]
+# CMD ["python", "main.py"]
+CMD ["gunicorn", "-b", "0.0.0.0", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--access-logfile", "-"]
+
