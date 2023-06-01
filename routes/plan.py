@@ -11,7 +11,7 @@ router = APIRouter()
 
 # create plan data
 @router.post("/plan", status_code=201)
-async def plan_root(request: Request, session: Session=Depends()):
+async def plan_root(request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -41,7 +41,7 @@ async def plan_root(request: Request, session: Session=Depends()):
 
 # read plan data
 @router.get("/plan/{madedate}", status_code=200)
-async def plan_root(madedate, request: Request):
+async def plan_root(madedate, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     response = await plan_service.output(madedate)
     
@@ -50,7 +50,7 @@ async def plan_root(madedate, request: Request):
 
 # read madedate data
 @router.get("/madedate", status_code=200)
-async def plan_root(request: Request):
+async def plan_root(request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     response = postgresql.session.query(Plan.madedate).distinct().all()
 
@@ -59,7 +59,7 @@ async def plan_root(request: Request):
 
 # update plan data
 @router.put("/plan/{id}", status_code=200)
-async def plan_root(id, request: Request):
+async def plan_root(id, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if id is None:
         raise HTTPException(status_code=400, detail="Bad Request(id)")
@@ -91,7 +91,7 @@ async def plan_root(id, request: Request):
 
 # delete plan data
 @router.delete("/plan/{id}", status_code=200)
-async def plan_root(id, request: Request):
+async def plan_root(id, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if id is not None:
         params = id

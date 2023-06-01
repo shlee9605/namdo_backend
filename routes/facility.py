@@ -11,7 +11,7 @@ router = APIRouter()
 
 # create facility data
 @router.post("/facility", status_code=201)
-async def facility_root(request: Request, session: Session=Depends()):
+async def facility_root(request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -30,7 +30,7 @@ async def facility_root(request: Request, session: Session=Depends()):
 
 # read facility data
 @router.get("/facility/all", status_code=200)
-async def facility_root(request: Request, param: Optional[str] = None):
+async def facility_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     response = await facility_service.output()
 
@@ -39,7 +39,7 @@ async def facility_root(request: Request, param: Optional[str] = None):
 
 # update facility data
 @router.put("/facility", status_code=200)
-async def facility_root(request: Request):
+async def facility_root(request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -59,7 +59,7 @@ async def facility_root(request: Request):
 
 # delete facility data
 @router.delete("/facility", status_code=200)
-async def facility_root(request: Request, param: str):
+async def facility_root(request: Request, param: str, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if param is not None:
         params = param

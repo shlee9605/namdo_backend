@@ -22,3 +22,4 @@ class BOM(Base):
             "process_name": self.process_name,
             "process_order": self.process_order,
         }
+

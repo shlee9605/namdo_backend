@@ -1,4 +1,5 @@
 import os
+from uvicorn.config import LOGGING_CONFIG
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,5 +43,6 @@ app.include_router(routes.router)
 
 # app runs
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
-    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    LOGGING_CONFIG["formatters"]["default"]["fmt"] = "%(asctime)s [%(name)s] %(levelprefix)s %(message)s"
+    # uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

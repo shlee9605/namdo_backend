@@ -11,6 +11,7 @@ async def create(params):
     try:
         postgresql.session.add(params)
         postgresql.session.commit()
+        postgresql.session.refresh(params)
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=406, detail="Create BOM Data Failed")
@@ -46,6 +47,7 @@ async def update(params, new_params):
     try:
         params.process_order = new_params.process_order
         postgresql.session.commit()
+        postgresql.session.refresh(params)
     except:
         postgresql.session.rollback()
         raise HTTPException(status_code=406, detail="Update Plan Data Failed")
@@ -67,6 +69,7 @@ async def delete(params):
 
         # commit
         postgresql.session.commit()
+        # postgresql.session.refresh(params)
 
     except SQLAlchemyError as e:
         postgresql.session.rollback()

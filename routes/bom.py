@@ -11,7 +11,7 @@ router = APIRouter()
 
 # create facility data
 @router.post("/bom/{product_unit}", status_code=201)
-async def bom_root(product_unit, request: Request, session: Session=Depends()):
+async def bom_root(product_unit, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -27,13 +27,13 @@ async def bom_root(product_unit, request: Request, session: Session=Depends()):
     
     # 2. Execute Business Logic
     response = await bom_service.input(params)
-    
+
     # 3. Response
     return response.result()
 
 # read facility data
 @router.get("/bom/{product_unit}", status_code=200)
-async def bom_root(product_unit, request: Request):
+async def bom_root(product_unit, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     if product_unit is None:
         raise HTTPException(status_code=400, detail="Bad Request(uri missing)")
@@ -45,7 +45,7 @@ async def bom_root(product_unit, request: Request):
 
 # update facility data
 @router.put("/bom/{id}", status_code=200)
-async def bom_root(id, request: Request):
+async def bom_root(id, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if id is None:
         raise HTTPException(status_code=400, detail="Bad Request(uri missing)")
@@ -72,7 +72,7 @@ async def bom_root(id, request: Request):
 
 # delete facility data
 @router.delete("/bom/{id}", status_code=200)
-async def bom_root(id, request: Request):
+async def bom_root(id, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if id is not None:
         params = id

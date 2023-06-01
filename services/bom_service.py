@@ -52,7 +52,7 @@ async def erase(params):
     # 1. bom plan
     result = await bom_dao.read(params)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Plan Data")
+        raise HTTPException(status_code=400, detail="No Existing BOM Data")
 
     # 2. erase bom
     await bom_dao.delete(result)
