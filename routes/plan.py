@@ -37,7 +37,7 @@ async def plan_root(request: Request, session: Session=Depends(postgresql.connec
     response = await plan_service.input(params)
     
     # 3. Response
-    return response.result()
+    return response
 
 # read plan data
 @router.get("/plan/{madedate}", status_code=200)
@@ -87,17 +87,19 @@ async def plan_root(id, request: Request, session: Session=Depends(postgresql.co
     response = await plan_service.edit(params)
 
     # 3. Response
-    return response.result()
+    return response
 
 # delete plan data
 @router.delete("/plan/{id}", status_code=200)
 async def plan_root(id, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
-    if id is not None:
-        params = id
-    else:
-        raise HTTPException(status_code=400, detail="Bad Request")
-    
+    try:
+        params = Plan(
+            id = id,
+        )
+    except:
+        raise HTTPException(status_code=400, detail="Bad Request(uri)")
+
     # 2. Execute Business Logic
     response = await plan_service.erase(params)
 

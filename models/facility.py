@@ -10,9 +10,3 @@ class Facility(Base):
     facility_name = Column(String, unique = True)
     
     # deletedAt: datetime = Field(default=None, nullable=True)
-
-    def result(self):
-        return {
-            "id": self.id,
-            "facility_name": self.facility_name,
-        }

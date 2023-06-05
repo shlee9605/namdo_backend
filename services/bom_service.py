@@ -6,24 +6,14 @@ from dao import bom_dao
 async def input(params):
     # 1. check existing unit data
     result = await bom_dao.read_by_unit(params.product_unit)
-
-    # 2. modify order
-    if len(result) == 0:
-        params.process_order = 1
+    
+    # 2. input bom
+    if result is None:
+        result = await bom_dao.create(params)
     else:
-        params.process_order = len(result) + 1
+        result = await bom_dao.update(result, params)
 
-    # check existing order data
-    # for order in result:
-    #     if order.process_order is params.process_order:
-    #         raise HTTPException(status_code=400, detail="Existing Order, Order Can Only Be Unique Data")
-    #     if order.id is params.id:
-    #         raise HTTPException(status_code=400, detail="Existing ID, Order Can Only Be Unique Data")
-
-    # 3. input bom
-    result = await bom_dao.create(params)
-
-    # 4. return at success
+    # 3. return at success
     return result
 
 # output bom data
@@ -37,12 +27,12 @@ async def output(params):
 # edit bom data
 async def edit(params):
     # 1. find data
-    result = await bom_dao.read(params.id)
+    result = await bom_dao.read_by_unit(params.product_unit)
     if result is None:
         raise HTTPException(status_code=400, detail="No Existing BOM Data")
     
     # 2. edit bom
-    await bom_dao.update(result, params)
+    await bom_dao.update_order(result, params)
     
     # 3. return at success
     return result
@@ -50,12 +40,16 @@ async def edit(params):
 # # erase bom data
 async def erase(params):
     # 1. bom plan
-    result = await bom_dao.read(params)
+    result = await bom_dao.read_by_unit(params['product_unit'])
     if result is None:
         raise HTTPException(status_code=400, detail="No Existing BOM Data")
 
-    # 2. erase bom
-    await bom_dao.delete(result)
+    # 2. check validation
+    if params['order'] >= len(result.process):
+        raise HTTPException(status_code=400, detail="Invalid Order Number")
 
-    # 3. return at success
+    # 3. erase bom
+    await bom_dao.delete(result, params['order'])
+
+    # 4. return at success
     return result

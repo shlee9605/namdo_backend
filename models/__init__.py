@@ -12,7 +12,17 @@ class PostgreSQL:
         self.engine = None
     
     async def create(self):
-        self.engine = create_engine(os.environ["POSTGRESQL_URL"])
+        self.engine = create_engine(os.environ["POSTGRESQL_URL"], 
+                                    connect_args={
+                                        "keepalives": 1,
+                                        "keepalives_idle": 30,
+                                        "keepalives_interval": 10,
+                                        "keepalives_count": 15,
+                                        },
+        )
+        sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        self.session = sessionLocal()
+        
         users.Base.metadata.create_all(bind = self.engine)
         plan.Base.metadata.create_all(bind = self.engine)
         process.Base.metadata.create_all(bind = self.engine)
@@ -21,13 +31,18 @@ class PostgreSQL:
         print("db connected")
 
     def connect(self):
-        # self.engine = create_engine(os.environ["POSTGRESQL_URL"])
-        # self.engine = create_async_engine(os.environ["POSTGRESQL_URL"])
         try:
             sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
             self.session = sessionLocal()
         finally:
             self.session.close()
+    
+    # async def connect(self):
+    #     sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+    #     self.session = sessionLocal()
+
+    # async def disconnect(self):
+    #     self.session.close()
 
     async def close(self):
         self.engine.dispose()

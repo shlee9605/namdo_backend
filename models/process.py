@@ -10,9 +10,3 @@ class Process(Base):
     process_name = Column(String, unique = True)
     
     # deletedAt: datetime = Field(default=None, nullable=True)
-
-    def result(self):
-        return {
-            "id": self.id,
-            "process_name": self.process_name,
-        }

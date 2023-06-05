@@ -4,10 +4,15 @@ from dao import process_dao
 
 # input process data
 async def input(params):
-    # 1. input process
+    # 1. check existing process data
+    result = await process_dao.read(params.process_name)
+    if result is not None:
+        raise HTTPException(status_code=400, detail="Existing Process Name")
+    
+    # 2. input process
     result = await process_dao.create(params)
 
-    # 2. return at success
+    # 3. return at success
     return result
 
 # output process data
@@ -20,15 +25,20 @@ async def output():
 
 # edit process data
 async def edit(params):
-    # 1. find data
+    # 1. check data
+    result = await process_dao.read(params['new_process_name'])
+    if result is not None:
+        raise HTTPException(status_code=400, detail="Already Existing New Process Data")
+
+    # 2. find data
     result = await process_dao.read(params['old_process_name'])
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Process Data")
+        raise HTTPException(status_code=400, detail="No Existing Old Process Data")
 
-    # 2. edit process
+    # 3. edit process
     await process_dao.update(result, params['new_process_name'])
     
-    # 3. return at success
+    # 4. return at success
     return result
 
 # erase process data

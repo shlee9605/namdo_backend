@@ -26,7 +26,7 @@ async def facility_root(request: Request, session: Session=Depends(postgresql.co
     response = await facility_service.input(params)
     
     # 3. Response
-    return response.result()
+    return response
 
 # read facility data
 @router.get("/facility/all", status_code=200)
@@ -55,7 +55,7 @@ async def facility_root(request: Request, session: Session=Depends(postgresql.co
     response = await facility_service.edit(params)
 
     # 3. response
-    return response.result()
+    return response
 
 # delete facility data
 @router.delete("/facility", status_code=200)

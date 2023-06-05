@@ -34,7 +34,7 @@ async def edit(params):
 # erase plan data
 async def erase(params):
     # 1. find data
-    result = await plan_dao.read(params)
+    result = await plan_dao.read(params.id)
     if result is None:
         raise HTTPException(status_code=400, detail="No Existing Plan Data")
     

@@ -4,7 +4,12 @@ from dao import facility_dao
 
 # input facility data
 async def input(params):
-    # 1. input plan
+    # 1. check existing process data
+    result = await facility_dao.read(params.facility_name)
+    if result is not None:
+        raise HTTPException(status_code=400, detail="Existing Facility Name")
+    
+    # 2. input facility
     result = await facility_dao.create(params)
 
     # 2. return at success
@@ -12,7 +17,7 @@ async def input(params):
 
 # output all facility data
 async def output():
-    # 1. output plan
+    # 1. output facility
     result = await facility_dao.read_all()
 
     # 2. return at success
@@ -20,15 +25,20 @@ async def output():
 
 # edit facility data
 async def edit(params):
-    # 1. find data
+    # 1. check data
+    result = await facility_dao.read(params['new_facility_name'])
+    if result is not None:
+        raise HTTPException(status_code=400, detail="Already Existing New Facility Data")
+
+    # 2. find data
     result = await facility_dao.read(params['old_facility_name'])
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Facility Data")
+        raise HTTPException(status_code=400, detail="No Existing Old Facility Data")
 
-    # 2. edit process
+    # 3. edit facility
     await facility_dao.update(result, params['new_facility_name'])
     
-    # 3. return at success
+    # 4. return at success
     return result
 
 # erase process data

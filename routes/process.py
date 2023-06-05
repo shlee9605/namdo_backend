@@ -26,7 +26,7 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
     response = await process_service.input(params)
     
     # 3. Response
-    return response.result()
+    return response
 
 # read process data
 @router.get("/process/all", status_code=200)
@@ -55,7 +55,7 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
     response = await process_service.edit(params)
 
     # 3. response
-    return response.result()
+    return response
 
 # delete process data
 @router.delete("/process", status_code=200)
