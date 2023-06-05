@@ -40,10 +40,10 @@ async def plan_root(request: Request, session: Session=Depends(postgresql.connec
     return response
 
 # read plan data
-@router.get("/plan/{madedate}", status_code=200)
-async def plan_root(madedate, request: Request, session: Session=Depends(postgresql.connect)):
+@router.get("/plan/{made_date}", status_code=200)
+async def plan_root(made_date, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
-    response = await plan_service.output(madedate)
+    response = await plan_service.output(made_date)
     
     # 2. Reponse
     return response

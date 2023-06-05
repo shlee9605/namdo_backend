@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from sqlalchemy import asc
 
 from models import postgresql
