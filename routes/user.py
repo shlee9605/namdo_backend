@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, Request, responses, Depends
 from typing import Optional
-from models import postgresql
 from sqlalchemy.orm import Session
+from sqlalchemy import asc
 
+from models import postgresql
 from models.users import Users
 from services import user_service
 
@@ -20,6 +21,7 @@ async def user_root(request: Request, session: Session=Depends(postgresql.connec
             pass_word = params['pass_word'],  
             name = params['name'],  
             email = params['email'],  
+            role = params['role'],  
         )
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
@@ -32,6 +34,8 @@ async def user_root(request: Request, session: Session=Depends(postgresql.connec
         raise HTTPException(status_code=400, detail="Bad Request(name)")
     if params.email=="":
         raise HTTPException(status_code=400, detail="Bad Request(email)")
+    if params.role!="Master" and params.role!="Administrator" and params.role!="Worker":
+        raise HTTPException(status_code=400, detail="Bad Request(role)")
 
     # 2. Execute Business Logic
     response = await user_service.input_user(params)
@@ -41,7 +45,10 @@ async def user_root(request: Request, session: Session=Depends(postgresql.connec
 
 @router.get("/user", status_code=200)
 async def user_root(request: Request, param: Optional[str] = None):
-    response = postgresql.session.query(Users).with_entities(Users.id, Users.user_id, Users.name, Users.email, Users.role).all()
+    if param is not None:
+        response = postgresql.session.query(Users).filter(Users.name.like('%'+param+'%')).with_entities(Users.id, Users.user_id, Users.name, Users.email, Users.role).order_by(asc(Users.name)).all()
+    else:
+        raise HTTPException(status_code=400, detail="Bad Request")
 
     return response
 

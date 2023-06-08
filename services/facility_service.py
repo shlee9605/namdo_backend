@@ -15,10 +15,10 @@ async def input(params):
     # 2. return at success
     return result
 
-# output all facility data
-async def output():
+# output facility data
+async def output(params):
     # 1. output facility
-    result = await facility_dao.read_all()
+    result = await facility_dao.read_all(params)
 
     # 2. return at success
     return result

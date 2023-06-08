@@ -9,25 +9,15 @@ async def create(params):
     postgresql.session.add(params)
     postgresql.session.commit()
     postgresql.session.refresh(params)
-    # try:
-    #     postgresql.session.add(params)
-    #     postgresql.session.commit()
-    # except:
-    #     postgresql.session.rollback()
-    #     raise HTTPException(status_code=406, detail="Create Facility Data Failed")
-    
+
     # 2. Return at Success
     return params
 
 # Read All Facility Data
-async def read_all():
+async def read_all(params):
     # 1. Read Facility Data
-    result = postgresql.session.query(Facility).order_by(asc(Facility.facility_name)).all()
-    # try:
-    #     result = postgresql.session.query(Facility).order_by(asc(Facility.facility_name)).all()
-    # except:
-    #     raise HTTPException(status_code=406, detail="Read All Facility Data Failed")
-    
+    result = postgresql.session.query(Facility).filter(Facility.facility_name.like('%'+params+'%')).order_by(asc(Facility.facility_name)).all()
+
     # 2. Return at Success
     return result
 
@@ -35,11 +25,7 @@ async def read_all():
 async def read(params):
     # 1. Read Facility Data
     result = postgresql.session.query(Facility).filter(Facility.facility_name==params).first()
-    # try:
-    #     result = postgresql.session.query(Facility).filter(Facility.facility_name==params).first()
-    # except:
-    #     raise HTTPException(status_code=406, detail="Read Facility Data Failed")
-    
+
     # 2. Return at Success
     return result
 
@@ -50,13 +36,7 @@ async def update(params, new_params):
     params.facility_name = new_params
     postgresql.session.commit()
     postgresql.session.refresh(params)
-    # try:
-    #     params.facility_name = new_params
-    #     postgresql.session.commit()
-    # except:
-    #     postgresql.session.rollback()
-    #     raise HTTPException(status_code=406, detail="Update Facility Data Failed")
-    
+
     # 2. Return at Success
     return params
 
@@ -65,12 +45,6 @@ async def delete(params):
     # 1. Delete Facility Data
     postgresql.session.delete(params)
     postgresql.session.commit()
-    # try:
-    #     postgresql.session.delete(params)
-    #     postgresql.session.commit()
-    # except:
-    #     postgresql.session.rollback()
-    #     raise HTTPException(status_code=406, detail="Delete Facility Data Failed")
-    
+
     # 2. Return at Success
     return params

@@ -12,7 +12,7 @@ router = APIRouter()
 
 # create gant data
 @router.post("/gant", status_code=201)
-async def plan_root(request: Request, session: Session=Depends(postgresql.connect)):
+async def gant_root(request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -40,7 +40,7 @@ async def plan_root(request: Request, session: Session=Depends(postgresql.connec
 
 # # read gant data
 @router.get("/gant/{search_date}", status_code=200)
-async def plan_root(search_date, request: Request, session: Session=Depends(postgresql.connect)):
+async def gant_root(search_date, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     # response = await plan_service.output(madedate)
     # response = postgresql.session.query(Gant).all()
@@ -54,7 +54,7 @@ async def plan_root(search_date, request: Request, session: Session=Depends(post
 
 # # update plan data
 # @router.put("/plan/{id}", status_code=200)
-# async def plan_root(id, request: Request, session: Session=Depends(postgresql.connect)):
+# async def gant_root(id, request: Request, session: Session=Depends(postgresql.connect)):
 #     # 1. Check Request
 #     if id is None:
 #         raise HTTPException(status_code=400, detail="Bad Request(id)")
@@ -86,7 +86,7 @@ async def plan_root(search_date, request: Request, session: Session=Depends(post
 
 # delete plan data
 @router.delete("/gant/{id}", status_code=200)
-async def plan_root(id, request: Request, session: Session=Depends(postgresql.connect)):
+async def gant_root(id, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = Gant(

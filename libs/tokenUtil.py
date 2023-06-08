@@ -63,8 +63,19 @@ async def middlewareToken(request: Request, call_next):
 
         return response
     except:
-
-        if request.method == "POST" and request.url.path in ["/kingdom/user", "/kingdom/token"]:
+        if request.method == "POST" and request.url.path in ["/auth", "/user", "/plan","/process", "/facility", "/bom", "/gant"]:
+            # skip the middleware for these routes
+            response = await call_next(request)
+            return response
+        if request.method == "GET" and request.url.path in ["/auth", "/user", "/plan","/process", "/facility", "/bom", "/gant"]:
+            # skip the middleware for these routes
+            response = await call_next(request)
+            return response
+        if request.method == "PUT" and request.url.path in ["/auth", "/user", "/plan","/process", "/facility", "/bom", "/gant"]:
+            # skip the middleware for these routes
+            response = await call_next(request)
+            return response
+        if request.method == "DELETE" and request.url.path in ["/auth", "/user", "/plan","/process", "/facility", "/bom", "/gant"]:
             # skip the middleware for these routes
             response = await call_next(request)
             return response

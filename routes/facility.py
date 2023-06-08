@@ -3,7 +3,6 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from models import postgresql
-
 from models.facility import Facility
 from services import facility_service
 
@@ -33,10 +32,13 @@ async def facility_root(request: Request, session: Session=Depends(postgresql.co
     return response
 
 # read facility data
-@router.get("/facility/all", status_code=200)
+@router.get("/facility", status_code=200)
 async def facility_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
-    response = await facility_service.output()
+    if param is not None:
+        response = await facility_service.output(param)        
+    else:
+        raise HTTPException(status_code=400, detail="Bad Request")
 
     # 2. Reponse
     return response

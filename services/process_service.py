@@ -16,9 +16,9 @@ async def input(params):
     return result
 
 # output process data
-async def output():
+async def output(params):
     # 1. output process
-    result = await process_dao.read_all()
+    result = await process_dao.read_all(params)
 
     # 2. return at success
     return result

@@ -30,17 +30,17 @@ class PostgreSQL:
         sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self.session = sessionLocal()
 
-        for model in self.models:
-            model.Base.metadata.create_all(bind = self.engine)
-
         # for model in self.models:
-        #     try:
-        #         model.Base.metadata.create_all(bind=self.engine)
-        #     except ProgrammingError as err:
-        #         if 'already exists' in str(err):
-        #             pass  # If the error is because table already exists, then pass.
-        #         else:
-        #             raise  # If it's a different error, we need to know about it.
+        #     model.Base.metadata.create_all(bind = self.engine)
+
+        for model in self.models:
+            try:
+                model.Base.metadata.create_all(bind=self.engine)
+            except ProgrammingError as err:
+                if 'already exists' in str(err):
+                    pass  # If the error is because table already exists, then pass.
+                else:
+                    raise  # If it's a different error, we need to know about it.
 
         # users.Base.metadata.create_all(bind = self.engine)
         # plan.Base.metadata.create_all(bind = self.engine)

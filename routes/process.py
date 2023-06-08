@@ -32,10 +32,13 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
     return response
 
 # read process data
-@router.get("/process/all", status_code=200)
+@router.get("/process", status_code=200)
 async def process_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
-    response = await process_service.output()
+    if param is not None:
+        response = await process_service.output(param)
+    else:
+        raise HTTPException(status_code=400, detail="Bad Request")
 
     # 2. Reponse
     return response
