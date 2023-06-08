@@ -1,31 +1,39 @@
 from fastapi import HTTPException
 
-from structures import user_structure
+from dao import user_dao
 from libs.hashUtil import hashPassword, verifyPassword
 
 # input user
 async def input_user(params):
-    # 1. hash password
-    try: 
-        params.pass_word = hashPassword(params.pass_word)
-    except:
-        raise HTTPException(status_code=500, detail="Password Hashing Failed")
-
-    # 2. input logic
-    result = await user_structure.input(params)
+    # 1. check existing user data
+    result = await user_dao.read_by_userid(params.user_id)
+    if result is not None:
+        raise HTTPException(status_code=400, detail="user_id exist")
+    result = await user_dao.read_by_userid(params.name)
+    if result is not None:
+        raise HTTPException(status_code=400, detail="name exist")
+    result = await user_dao.read_by_userid(params.email)
+    if result is not None:
+        raise HTTPException(status_code=400, detail="email exist")
     
-    # 3. return at success
+    # 2. hash password
+    params.pass_word = hashPassword(params.pass_word)
+
+    # 3. input logic
+    result = await user_dao.create(params)
+    
+    # 4. return at success
     return result
 
 # login
 async def login_user(params):
     # 1. find user
-    result = await user_structure.output(params['user_id'])
+    result = await user_dao.read_by_userid(params.user_id)
     if not result:
         raise HTTPException(status_code=400, detail="No Matched User")
 
     # 2. verify password
-    if not verifyPassword(params['pass_word'], result.pass_word):
+    if not verifyPassword(params.pass_word, result.pass_word):
         raise HTTPException(status_code=401, detail="Password Matched Failed")
     
     # 3. return true
@@ -34,7 +42,7 @@ async def login_user(params):
 # output user
 async def output_user(params):
     # 1. output user
-    result = await user_structure.output(params)
+    result = await user_dao.output(params)
 
     # 2. return at success
     return result
@@ -42,7 +50,7 @@ async def output_user(params):
 # erase user
 async def erase_user(params):
     # 1. delete user
-    result = await user_structure.erase(params)
+    result = await user_dao.erase(params)
     
     # 2. return at success
     return result

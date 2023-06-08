@@ -15,6 +15,11 @@ class PostgreSQL:
     
     async def create(self):
         self.engine = create_engine(os.environ["POSTGRESQL_URL"], 
+                                    pool_size=10,
+                                    max_overflow=2,
+                                    pool_recycle=300,
+                                    pool_pre_ping=True,
+                                    pool_use_lifo=True,
                                     connect_args={
                                         "keepalives": 1,
                                         "keepalives_idle": 30,

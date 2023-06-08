@@ -7,6 +7,6 @@ class Process(Base):
     __tablename__ = "process"
 
     id = Column(Integer, primary_key=True, index=True)
-    process_name = Column(String, unique = True)
+    process_name = Column(String, unique=True, nullable=False)
     
     # deletedAt: datetime = Field(default=None, nullable=True)

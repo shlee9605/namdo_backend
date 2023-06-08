@@ -17,10 +17,14 @@ async def facility_root(request: Request, session: Session=Depends(postgresql.co
         params = await request.json()
 
         params = Facility(
-            facility_name = params.get('facility_name'),
+            facility_name = params['facility_name'],
         )
+
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
+    
+    if params.facility_name == "":
+        raise HTTPException(status_code=400, detail="Bad Request(facility_name)")
     
     # 2. Execute Business Logic
     response = await facility_service.input(params)
@@ -51,6 +55,9 @@ async def facility_root(request: Request, session: Session=Depends(postgresql.co
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
     
+    if params['new_facility_name'] == "":
+        raise HTTPException(status_code=400, detail="Bad Request(new_facility_name)")
+    
     # 2. Execute Business
     response = await facility_service.edit(params)
 
@@ -59,7 +66,7 @@ async def facility_root(request: Request, session: Session=Depends(postgresql.co
 
 # delete facility data
 @router.delete("/facility", status_code=200)
-async def facility_root(request: Request, param: str, session: Session=Depends(postgresql.connect)):
+async def facility_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if param is not None:
         params = param

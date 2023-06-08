@@ -17,11 +17,14 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
         params = await request.json()
 
         params = Process(
-            process_name = params.get('process_name'),
+            process_name = params['process_name'],
         )
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
     
+    if params.process_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(process_name)")
+
     # 2. Execute Business Logic
     response = await process_service.input(params)
     
@@ -51,6 +54,9 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
     
+    if params['new_process_name'] == "":
+        raise HTTPException(status_code=400, detail="Bad Request(new_process_name)")
+
     # 2. Execute Business
     response = await process_service.edit(params)
 
@@ -59,7 +65,7 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
 
 # delete process data
 @router.delete("/process", status_code=200)
-async def process_root(request: Request, param: str, session: Session=Depends(postgresql.connect)):
+async def process_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if param is not None:
         params = param

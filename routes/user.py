@@ -4,53 +4,46 @@ from models import postgresql
 from sqlalchemy.orm import Session
 
 from models.users import Users
-# from services import user_service
+from services import user_service
 
 router = APIRouter()
 
-@router.get("/user", status_code=200)
-async def user_root(request: Request, param: str):
-    response = postgresql.session.query(Users).all()
-    print(response)
-    return response
-
+#add user
 @router.post("/user", status_code=201)
-async def user_root(request: Request, session: Session = Depends()):
-    params = await request.json()
-    
-    params = Users(
-        user_id = params['user_id'],
-        pass_word = params['pass_word'],
-        role = params['role']
-    )
+async def user_root(request: Request, session: Session=Depends(postgresql.connect)):
+    # 1. Check Request
+    try:
+        params = await request.json()
+        
+        params = Users(
+            user_id = params['user_id'],
+            pass_word = params['pass_word'],  
+            name = params['name'],  
+            email = params['email'],  
+        )
+    except:
+        raise HTTPException(status_code=400, detail="Bad Request")
 
-    postgresql.session.add(params)
-    postgresql.session.commit()
-    postgresql.session.refresh(params)
+    if params.user_id=="":
+        raise HTTPException(status_code=400, detail="Bad Request(user_id)")
+    if params.pass_word=="":
+        raise HTTPException(status_code=400, detail="Bad Request(pass_word)")
+    if params.name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(name)")
+    if params.email=="":
+        raise HTTPException(status_code=400, detail="Bad Request(email)")
 
-    response = params
+    # 2. Execute Business Logic
+    response = await user_service.input_user(params)
+
+    # 3. Response
     return response
 
-# add user
-# @router.post("/kingdom/user", status_code=201)
-# async def user_root(request: Users):
-#     # 1. Check Request
-#     try:
-#         params = Users(
-#             user_id=request.user_id,
-#             pass_word=request.pass_word,
-#             year=request.year,
-#             deletedAt=request.deletedAt
-#         )
-#     except:
-#         raise HTTPException(status_code=400, detail="Bad Request")
+@router.get("/user", status_code=200)
+async def user_root(request: Request, param: Optional[str] = None):
+    response = postgresql.session.query(Users).with_entities(Users.id, Users.user_id, Users.name, Users.email, Users.role).all()
 
-#     # 2. Execute Bussiness Logic
-#     response = await user_service.input_user(params)
-
-#     # 3. Response
-#     return response
-
+    return response
 
 # # get current user
 # @router.get("/kingdom/user")

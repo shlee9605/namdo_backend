@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, MetaData
+from sqlalchemy import Column, Integer, String, Enum, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-# from models import Base
 # from datetime import datetime
 
 
@@ -9,8 +8,10 @@ class Users(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String(40))
-    pass_word = Column(String(40))
-    role = Column(String(20))
+    user_id = Column(String(40), unique=True, nullable=False, index=True)
+    pass_word = Column(String(400), nullable=False)
+    name = Column(String(100), unique=True, nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    role = Column(Enum("Master", "Administrator", "Worker", name="role", schema="namdo"), default="Worker", nullable=False)
     # deletedAt: datetime = Field(default=None, nullable=True)
 
