@@ -55,10 +55,14 @@ async def bom_root(product_unit, request: Request, session: Session=Depends(post
             state = params.get('state'),
             process = params.get('process_names'),
         )
-
     except:
         raise HTTPException(status_code=400, detail="Bad Request(body)")
 
+    ################ERROR###################
+    if params.state is None:
+        params.state = "Done"
+
+    # 2. Execute Business Logic
     response = await bom_service.edit(params)
 
     # 3. Response
