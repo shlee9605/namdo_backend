@@ -9,10 +9,10 @@ async def input_user(params):
     result = await user_dao.read_by_userid(params.user_id)
     if result is not None:
         raise HTTPException(status_code=400, detail="user_id exist")
-    result = await user_dao.read_by_userid(params.name)
+    result = await user_dao.read_by_name(params.name)
     if result is not None:
         raise HTTPException(status_code=400, detail="name exist")
-    result = await user_dao.read_by_userid(params.email)
+    result = await user_dao.read_by_email(params.email)
     if result is not None:
         raise HTTPException(status_code=400, detail="email exist")
     

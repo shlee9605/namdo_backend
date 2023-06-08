@@ -35,7 +35,7 @@ app.add_event_handler("startup", connection.on_app_start)
 app.add_event_handler("shutdown", connection.on_app_shutdown)
 
 # middleware
-# app.middleware("http")(middlewareToken)
+app.middleware("http")(middlewareToken)
 
 # routing
 app.include_router(routes.router)
