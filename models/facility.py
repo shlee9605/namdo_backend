@@ -7,6 +7,6 @@ class Facility(Base):
     __tablename__ = "facility"
 
     id = Column(Integer, primary_key=True, index=True)
-    facility_name = Column(String, unique = True)
+    facility_name = Column(String, unique=True, nullable=False)
     
     # deletedAt: datetime = Field(default=None, nullable=True)

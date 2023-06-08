@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from models.bom import BOM
@@ -17,7 +18,7 @@ async def bom_root(product_unit, plan_id, request: Request,
 
         params = BOM(
             product_unit = product_unit,
-            process = [params.get('process_name')],
+            process = [params['process_name']],
         )
     except:
         raise HTTPException(status_code=400, detail="Bad Request")
@@ -66,7 +67,7 @@ async def bom_root(product_unit, request: Request, session: Session=Depends(post
 
 # delete facility data
 @router.delete("/bom/{product_unit}", status_code=200)
-async def bom_root(product_unit, request: Request, param: str, session: Session=Depends(postgresql.connect)):
+async def bom_root(product_unit, request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if product_unit is not None and param is not None:
         params = {
