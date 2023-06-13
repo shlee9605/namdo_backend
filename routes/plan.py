@@ -43,7 +43,17 @@ async def plan_root(request: Request, session: Session=Depends(postgresql.connec
 @router.get("/plan/{made_date}", status_code=200)
 async def plan_root(made_date, request: Request, session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
-    response = await plan_service.output(made_date)
+    response = await plan_service.output_admin(made_date)
+    
+    # 2. Reponse
+    return response
+
+# read plan data
+@router.get("/plan/{start_date}/{end_date}", status_code=200)
+async def plan_root(start_date, end_date, request: Request, session: Session=Depends(postgresql.connect)):
+    # 1. Execute Business Logic
+    response = await plan_service.output_detail(start_date, end_date)
+    # response = postgresql.session.query(Plan).filter(Plan.madedate.between(start_date,end_date)).all()
     
     # 2. Reponse
     return response

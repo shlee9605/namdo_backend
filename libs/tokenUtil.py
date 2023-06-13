@@ -19,7 +19,7 @@ def makeToken(user_id):
     try:
         return jwt.encode(data, os.environ["SECRET_KEY"], algorithm=os.environ["ALGORITHM"])
     except:
-        raise HTTPException(status_code=500, detail="Create Token Failed")
+        raise HTTPException(status_code=500, detail="Encode Token Failed")
 
 # verify token at calls
 async def verifyToken(authorization=Header(None)):

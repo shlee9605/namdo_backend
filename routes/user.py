@@ -5,13 +5,14 @@ from sqlalchemy import asc
 
 from models import postgresql
 from models.users import Users
+from libs.authUtil import check_Master
 from services import user_service
 
 router = APIRouter()
 
 #add user
 @router.post("/user", status_code=201)
-async def user_root(request: Request, session: Session=Depends(postgresql.connect)):
+async def user_root(request: Request, session: Session=Depends(postgresql.connect), current_user= Depends(check_Master)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -44,51 +45,22 @@ async def user_root(request: Request, session: Session=Depends(postgresql.connec
     return response
 
 @router.get("/user", status_code=200)
-async def user_root(request: Request, param: Optional[str] = None):
+async def user_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect), current_user= Depends(check_Master)):
+    # 1. Check Request
     if param is not None:
-        response = postgresql.session.query(Users).filter(Users.name.like('%'+param+'%')).with_entities(Users.id, Users.user_id, Users.name, Users.email, Users.role).order_by(asc(Users.name)).all()
+        params = param
     else:
         raise HTTPException(status_code=400, detail="Bad Request")
+    
+    # 2. Execute Business Logic
+    # response = postgresql.session.query(Users).filter(Users.name.like('%'+param+'%')).with_entities(Users.id, Users.user_id, Users.name, Users.email, Users.role).order_by(asc(Users.name)).all()    
+    response = await user_service.output_user(params)
 
+    # 3. Response
     return response
-
-# # get current user
-# @router.get("/kingdom/user")
-# async def get_current_user(request: Request, param: Optional[str] = None):
-#     # 1. Check Request
-#     try:
-#         if param is None:       # for current user
-#             params : str = request.state.payload.get("sub")
-#         else:
-#             params = param      # for else
-
-#     except:
-#         raise HTTPException(status_code=400, detail="Bad Request")
-
-#     # 2. Execute Buissiness Logic
-#     response = await user_service.output_user(params)
-
-#     # 3. Response
-#     return response
 
 # # get background image
 # @router.get("/kingdom/user/background")
 # async def read_image():
 #     # return responses.FileResponse(f"static/images/home.jpg", filename="home.jpg")
 #     return responses.FileResponse(f"static/images/home.gif", filename="home.gif")
-
-# # delete user
-# @router.delete("/kingdom/user")
-# async def user_root(request: Request):
-#     # 1. Check Request
-#     try:
-#         params : str = request.state.payload.get("sub")
-#     except:
-#         raise HTTPException(status_code=400, detail="Bad Request")
-
-#     # 2. Execute Bussiness Logic
-#     response = await user_service.erase_user(params)
-
-#     # 3. Response
-#     return response
-

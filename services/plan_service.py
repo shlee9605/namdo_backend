@@ -11,9 +11,17 @@ async def input(params):
     return result
 
 # output plan data
-async def output(params):
+async def output_admin(params):
     # 1. output plan
     result = await plan_dao.read_by_date(params)
+
+    # 2. return at success
+    return result
+
+# output plan data
+async def output_detail(params1, params2):
+    # 1. output plan
+    result = await plan_dao.read_by_period(params1, params2)
 
     # 2. return at success
     return result
