@@ -42,15 +42,15 @@ async def login_user(params):
 # output user
 async def output_user(params):
     # 1. output user
-    result = await user_dao.output(params)
+    result = await user_dao.read_all(params)
 
     # 2. return at success
     return result
 
 # erase user
-async def erase_user(params):
-    # 1. delete user
-    result = await user_dao.erase(params)
+# async def erase_user(params):
+#     # 1. delete user
+#     result = await user_dao.erase(params)
     
-    # 2. return at success
-    return result
+#     # 2. return at success
+#     return result

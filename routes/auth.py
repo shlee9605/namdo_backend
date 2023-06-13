@@ -11,7 +11,7 @@ router = APIRouter()
 
 # login
 @router.post("/auth/login", status_code=201)
-async def user_root(request: Request, response: Response):
+async def user_root(request: Request, response: Response, session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
