@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from models import postgresql
 from models.gant import Gant
+from models.plan import Plan
 
 # Create Gant Data
 async def create(params):
@@ -25,9 +26,15 @@ async def read(params):
 # Read Date Gant Data
 async def read_by_date(params):
     # 1. Read Gant Data
-    # result = postgresql.session.query(Plan).filter(Plan.madedate==params).order_by(asc(Plan.id)).all()
-    result = postgresql.session.query(Gant).filter(and_(Gant.start_date<=(params + timedelta(days=30)), Gant.end_date>=params)).order_by(asc(Gant.id)).all()
-
+    # result = postgresql.session.query(Gant).filter(and_(Gant.start_date<=(params + timedelta(days=30)), Gant.end_date>=params)).order_by(asc(Gant.id)).all()
+    result = postgresql.session.query(Gant).join(Plan, Gant.plan_id==Plan.id).with_entities(Gant.id, 
+        Plan.product_unit, 
+        Gant.process_name, 
+        Plan.amount,
+        Gant.start_date, 
+        Gant.end_date, 
+        Gant.facility_name).filter(and_(Gant.start_date<=(params + timedelta(days=30)), Gant.end_date>=params)).all()
+    
     # 2. Return at Success
     return result
 

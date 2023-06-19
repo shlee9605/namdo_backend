@@ -9,8 +9,8 @@ from services import bom_service
 router = APIRouter()
 
 # create facility data
-@router.post("/bom/{product_unit}/{plan_id}", status_code=201)
-async def bom_root(product_unit, plan_id, request: Request, 
+@router.post("/bom/{product_unit}", status_code=201)
+async def bom_root(product_unit, request: Request, 
                    session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
@@ -20,8 +20,8 @@ async def bom_root(product_unit, plan_id, request: Request,
             product_unit = product_unit,
             process = [params['process_name']],
         )
-    except:
-        raise HTTPException(status_code=400, detail="Bad Request")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
     # 2. Execute Business Logic
     response = await bom_service.input(params)
@@ -31,7 +31,8 @@ async def bom_root(product_unit, plan_id, request: Request,
 
 # read facility data
 @router.get("/bom/{product_unit}", status_code=200)
-async def bom_root(product_unit, request: Request, session: Session=Depends(postgresql.connect)):
+async def bom_root(product_unit, request: Request, 
+                   session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     if product_unit is None:
         raise HTTPException(status_code=400, detail="Bad Request(uri missing)")
@@ -43,7 +44,8 @@ async def bom_root(product_unit, request: Request, session: Session=Depends(post
 
 # update facility data
 @router.put("/bom/{product_unit}", status_code=200)
-async def bom_root(product_unit, request: Request, session: Session=Depends(postgresql.connect)):
+async def bom_root(product_unit, request: Request, 
+                   session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if product_unit is None:
         raise HTTPException(status_code=400, detail="Bad Request(uri missing)")
@@ -52,15 +54,11 @@ async def bom_root(product_unit, request: Request, session: Session=Depends(post
         params = await request.json()
         params = BOM(
             product_unit=product_unit,
-            state = params.get('state'),
-            process = params.get('process_names'),
+            state = params['state'],
+            process = params['process_names'],
         )
-    except:
-        raise HTTPException(status_code=400, detail="Bad Request(body)")
-
-    ################ERROR###################
-    if params.state is None:
-        params.state = "Done"
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     # 2. Execute Business Logic
     response = await bom_service.edit(params)
@@ -71,7 +69,8 @@ async def bom_root(product_unit, request: Request, session: Session=Depends(post
 
 # delete facility data
 @router.delete("/bom/{product_unit}", status_code=200)
-async def bom_root(product_unit, request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
+async def bom_root(product_unit, request: Request, param: Optional[str] = None, 
+                   session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if product_unit is not None and param is not None:
         params = {

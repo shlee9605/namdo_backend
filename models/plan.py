@@ -8,7 +8,7 @@ class Plan(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     state = Column(Enum("Undone", "Working", "Done", name="state", schema="namdo"), default="Undone")
-    madedate = Column(String)
+    madedate = Column(String, index=True)
     company = Column(String)
     lot = Column(String)
     material_unit = Column(String)
@@ -18,5 +18,3 @@ class Plan(Base):
     amount = Column(String)
     deadline = Column(String)
     note = Column(String)
-    
-    # deletedAt: datetime = Field(default=None, nullable=True)
