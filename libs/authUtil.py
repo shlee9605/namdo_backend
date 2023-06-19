@@ -31,7 +31,7 @@ async def check_Admin(request: Request, session: Session=Depends(postgresql.conn
     result = await user_dao.read_by_userid(user_id)
 
     # 3. Check Privileges
-    if result.role != "Administrator":
+    if result.role != "Admin" and result.role != "Master":
         raise HTTPException(status_code=403, detail="Insufficient privileges(Administrator)")
     
     # 4. Return Current User Data

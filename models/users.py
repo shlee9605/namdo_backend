@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, Enum, MetaData
+from sqlalchemy import Column, Integer, String, Enum, DateTime, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-# from datetime import datetime
 
 
 Base = declarative_base(metadata=MetaData(schema="namdo"))
@@ -12,6 +11,7 @@ class Users(Base):
     pass_word = Column(String(400), nullable=False)
     name = Column(String(100), unique=True, nullable=False)
     email = Column(String(100), unique=True, nullable=False)
-    role = Column(Enum("Master", "Administrator", "Worker", name="role", schema="namdo"), default="Worker", nullable=False)
-    # deletedAt: datetime = Field(default=None, nullable=True)
+    role = Column(Enum("Master", "Admin", "Worker", name="role", schema="namdo"), default="Worker", nullable=False)
+    
+    deletedAt = Column(DateTime, index=True)
 

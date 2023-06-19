@@ -8,9 +8,7 @@ class BOM(Base):
     __tablename__ = "bom"
 
     id = Column(Integer, primary_key=True, index=True)
-    state = Column(Enum("Undone", "Editting", "Done", name="state", schema = "namdo"), default="Undone", nullable=False)
+    state = Column(Enum("Undone", "Working", "Done", name="state", schema = "namdo"), default="Undone", nullable=False)
     product_unit = Column(String, unique=True, index=True, nullable=False)
-    process = Column(MutableList.as_mutable(ARRAY(String)))
-
-    # deletedAt: datetime = Field(default=None, nullable=True)
+    process = Column(MutableList.as_mutable(ARRAY(String)), nullable=False)
 

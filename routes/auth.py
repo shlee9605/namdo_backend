@@ -11,7 +11,8 @@ router = APIRouter()
 
 # login
 @router.post("/auth/login", status_code=201)
-async def user_root(request: Request, response: Response, session: Session=Depends(postgresql.connect)):
+async def user_root(request: Request, response: Response, 
+                    session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -20,8 +21,8 @@ async def user_root(request: Request, response: Response, session: Session=Depen
             user_id = params['user_id'],
             pass_word = params['pass_word'],
         )
-    except:
-        raise HTTPException(status_code=400, detail="Bad Request")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     if params.user_id=="":
         raise HTTPException(status_code=400, detail="Bad Request(user_id)")
@@ -43,7 +44,8 @@ async def user_root(request: Request, response: Response, session: Session=Depen
 
 # signup
 @router.post("/auth/signup", status_code=201)
-async def user_root(request: Request, session: Session=Depends(postgresql.connect)):
+async def user_root(request: Request, 
+                    session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -54,8 +56,8 @@ async def user_root(request: Request, session: Session=Depends(postgresql.connec
             name = params['name'],  
             email = params['email'],  
         )
-    except:
-        raise HTTPException(status_code=400, detail="Bad Request")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     if params.user_id=="":
         raise HTTPException(status_code=400, detail="Bad Request(user_id)")

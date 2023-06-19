@@ -55,9 +55,6 @@ async def middlewareToken(request: Request, call_next):
         response = await call_next(request)
         return response
 
-    if request.url.path.startswith('/plan') and request.method in ["GET"]:
-        response = await call_next(request)
-        return response
     if request.url.path.startswith('/process') and request.method in ["POST", "PUT", "GET", "DELETE"]:
         response = await call_next(request)
         return response
@@ -68,6 +65,9 @@ async def middlewareToken(request: Request, call_next):
         response = await call_next(request)
         return response
     if request.url.path.startswith('/gant') and request.method in ["POST", "PUT", "GET", "DELETE"]:
+        response = await call_next(request)
+        return response
+    if request.url.path.startswith('/achievement') and request.method in ["POST", "PUT", "GET", "DELETE"]:
         response = await call_next(request)
         return response
 

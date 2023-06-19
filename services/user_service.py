@@ -47,10 +47,42 @@ async def output_user(params):
     # 2. return at success
     return result
 
+# edit user
+async def edit_user(params):
+    # 1. validate unique datas
+    result = await user_dao.read_by_userid(params.user_id)
+    if result is not None and params.id != result.id:
+        raise HTTPException(status_code=400, detail="Already Existing UserID")
+    result = await user_dao.read_by_email(params.email)
+    if result is not None and params.id != result.id:
+        raise HTTPException(status_code=400, detail="Already Existing Email")
+    result = await user_dao.read_by_name(params.name)
+    if result is not None and params.id != result.id:
+        raise HTTPException(status_code=400, detail="Already Existing Name")
+
+    # 2. find data
+    result = await user_dao.read(params.id)
+    if result is None:
+        raise HTTPException(status_code=400, detail="No Existing User")
+
+    # 3. hash password data
+    params.pass_word = hashPassword(params.pass_word)
+
+    # 4. edit user
+    await user_dao.update(result, params)
+
+    # 5. return at success
+    return result
+
 # erase user
-# async def erase_user(params):
-#     # 1. delete user
-#     result = await user_dao.erase(params)
+async def erase_user(params):
+    # 1. find data
+    result = await user_dao.read(params.id)
+    if result is None:
+        raise HTTPException(status_code=400, detail="No Existing User")
     
-#     # 2. return at success
-#     return result
+    # 2. erase user
+    await user_dao.delete(result)
+    
+    # 2. return at success
+    return result

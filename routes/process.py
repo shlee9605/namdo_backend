@@ -11,7 +11,8 @@ router = APIRouter()
 
 # create process data
 @router.post("/process", status_code=201)
-async def process_root(request: Request, session: Session=Depends(postgresql.connect)):
+async def process_root(request: Request, 
+                       session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -19,8 +20,8 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
         params = Process(
             process_name = params['process_name'],
         )
-    except:
-        raise HTTPException(status_code=400, detail="Bad Request")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
     if params.process_name=="":
         raise HTTPException(status_code=400, detail="Bad Request(process_name)")
@@ -33,7 +34,8 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
 
 # read process data
 @router.get("/process", status_code=200)
-async def process_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
+async def process_root(request: Request, param: Optional[str] = None, 
+                       session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     if param is not None:
         response = await process_service.output(param)
@@ -45,17 +47,18 @@ async def process_root(request: Request, param: Optional[str] = None, session: S
 
 # update process data
 @router.put("/process", status_code=200)
-async def process_root(request: Request, session: Session=Depends(postgresql.connect)):
+async def process_root(request: Request, 
+                       session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
 
         params = {
-            "old_process_name": params.get('old_process_name'),
-            "new_process_name": params.get('new_process_name')
+            "old_process_name": params['old_process_name'],
+            "new_process_name": params['new_process_name']
         }
-    except:
-        raise HTTPException(status_code=400, detail="Bad Request")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
     if params['new_process_name'] == "":
         raise HTTPException(status_code=400, detail="Bad Request(new_process_name)")
@@ -68,7 +71,8 @@ async def process_root(request: Request, session: Session=Depends(postgresql.con
 
 # delete process data
 @router.delete("/process", status_code=200)
-async def process_root(request: Request, param: Optional[str] = None, session: Session=Depends(postgresql.connect)):
+async def process_root(request: Request, param: Optional[str] = None, 
+                       session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if param is not None:
         params = param
