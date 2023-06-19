@@ -7,7 +7,7 @@ class Achievement(Base):
     __tablename__ = "achievement"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, nullable=False)
-    gant_id = Column(Integer, nullable=False)
-    accomplishment = Column(String, nullable=False)
+    user_id = Column(String, nullable=False, index=True)
+    gant_id = Column(Integer, nullable=False, index=True)
+    accomplishment = Column(Integer, nullable=False)
 

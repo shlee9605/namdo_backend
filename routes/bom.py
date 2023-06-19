@@ -23,6 +23,11 @@ async def bom_root(product_unit, request: Request,
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
+    if params.product_unit=="":
+        raise HTTPException(status_code=400, detail="Bad Request(product_unit)")
+    if params.process=="":
+        raise HTTPException(status_code=400, detail="Bad Request(process)")
+
     # 2. Execute Business Logic
     response = await bom_service.input(params)
 
@@ -59,6 +64,14 @@ async def bom_root(product_unit, request: Request,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    if params.product_unit=="":
+        raise HTTPException(status_code=400, detail="Bad Request(product_unit)")
+    if params.process=="":
+        raise HTTPException(status_code=400, detail="Bad Request(process)")
+    if params.state!="Undone" and params.state!="Working" and params.state!="Done":
+        raise HTTPException(status_code=400, detail="Bad Request(state)")
+
 
     # 2. Execute Business Logic
     response = await bom_service.edit(params)

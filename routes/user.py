@@ -64,6 +64,22 @@ async def user_root(request: Request, param: Optional[str] = None,
     # 3. Response
     return response
 
+# read user name
+@router.get("/user/name", status_code=200)
+async def user_root(request: Request, param: Optional[str] = None, 
+                    session: Session=Depends(postgresql.connect)):
+    # 1. Check Request
+    if param is not None:
+        params = param
+    else:
+        raise HTTPException(status_code=400, detail="Bad Request")
+    
+    # 2. Execute Business Logic
+    response = await user_service.output_user_name(params)
+
+    # 3. Response
+    return response
+
 # update user
 @router.put("/user", status_code=200)
 async def user_root(request: Request, 

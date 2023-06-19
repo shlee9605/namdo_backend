@@ -32,13 +32,24 @@ async def gant_root(request: Request,
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
+    if params.plan_id=="":
+        raise HTTPException(status_code=400, detail="Bad Request(plan_id)")
+    if params.process_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(process_name)")
+    if params.start_date=="":
+        raise HTTPException(status_code=400, detail="Bad Request(start_date)")
+    if params.end_date=="":
+        raise HTTPException(status_code=400, detail="Bad Request(end_date)")
+    if params.facility_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(facility_name)")
+
     # 2. Execute Business Logic
     response = await gant_service.input(params)
     
     # 3. Response
     return response
 
-# # read gant data
+# read gant data
 @router.get("/gant/{search_date}", status_code=200)
 async def gant_root(search_date, request: Request, 
                     session: Session=Depends(postgresql.connect)):
@@ -49,24 +60,6 @@ async def gant_root(search_date, request: Request,
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
     response = await gant_service.output(search_date)
-    # datas = postgresql.session.query(Gant).join(Plan, Gant.plan_id==Plan.id).with_entities(Gant.id, 
-    #     Plan.product_unit, 
-    #     Gant.process_name, 
-    #     Plan.amount,
-    #     Gant.start_date, 
-    #     Gant.end_date, 
-    #     Gant.facility_name).filter(and_(Gant.start_date<=(search_date + timedelta(days=30)), Gant.end_date>=search_date)).all()
-    # response = []
-
-    # for i in datas:
-    #     data = {
-    #         "id": i.id,
-    #         "title": f"{i.product_unit}-{i.process_name}-{i.amount}",
-    #         "start_date": i.start_date,
-    #         "end_date": i.end_date,
-    #         "facility_name": i.facility_name,
-    #     }
-    #     response.append(data)
 
     # 2. Reponse
     return response
@@ -91,6 +84,17 @@ async def gant_root(id, request: Request,
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
+    if params.plan_id=="":
+        raise HTTPException(status_code=400, detail="Bad Request(plan_id)")
+    if params.process_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(process_name)")
+    if params.start_date=="":
+        raise HTTPException(status_code=400, detail="Bad Request(start_date)")
+    if params.end_date=="":
+        raise HTTPException(status_code=400, detail="Bad Request(end_date)")
+    if params.facility_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(facility_name)")
+
     # 2. Execute Business Logic
     response = await gant_service.edit(params)
 
