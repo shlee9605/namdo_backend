@@ -31,8 +31,9 @@ async def login_user(params):
     result = await user_dao.read_by_userid(params.user_id)
     if not result:
         raise HTTPException(status_code=400, detail="No Matched User")
-
+    
     # 2. verify password
+    result = await user_dao.read(result.id)
     if not verifyPassword(params.pass_word, result.pass_word):
         raise HTTPException(status_code=401, detail="Password Matched Failed")
     
@@ -43,6 +44,14 @@ async def login_user(params):
 async def output_user(params):
     # 1. output user
     result = await user_dao.read_all(params)
+
+    # 2. return at success
+    return result
+
+# output user name
+async def output_user_name(params):
+    # 1. output user
+    result = await user_dao.read_all_name(params)
 
     # 2. return at success
     return result

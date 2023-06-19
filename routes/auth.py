@@ -32,7 +32,7 @@ async def user_root(request: Request, response: Response,
     # 2. Execute Bussiness Logic
     result = await user_service.login_user(params)
     response.headers["Access-Control-Allow-Headers"] = "Authorization"
-    response.headers["authorization"] = os.environ["TOKEN_TYPE"] + " " + makeToken(result.user_id) + " "
+    response.headers["authorization"] = os.environ["TOKEN_TYPE"] + " " + makeToken(result.user_id, result.role) + " "
 
     # 3. Response
     return {

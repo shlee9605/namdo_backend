@@ -51,7 +51,15 @@ async def read_all(params):
     # 1. Read Users Data
     result = postgresql.session.query(Users).filter(and_(Users.name.like('%'+params+'%'), Users.deletedAt.is_(None))).with_entities(
         Users.id, Users.user_id, Users.name, Users.email, Users.role).order_by(asc(Users.name)).all()
-    # result = postgresql.session.query(Users).filter(and_(Users.name.like('%'+params+'%'))).with_entities(Users.id, Users.user_id, Users.name, Users.email, Users.role).order_by(asc(Users.name)).all()
+
+    # 2. Return at Success
+    return result
+
+# Read All Users Name
+async def read_all_name(params):
+    # 1. Read Users Data
+    result = postgresql.session.query(Users).filter(and_(Users.name.like('%'+params+'%'), Users.deletedAt.is_(None))).with_entities(
+        Users.name).order_by(asc(Users.name)).all()
 
     # 2. Return at Success
     return result
