@@ -9,7 +9,7 @@ class Users(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(40), unique=True, nullable=False, index=True)
     pass_word = Column(String(400), nullable=False)
-    name = Column(String(100), unique=True, nullable=False)
+    name = Column(String(100), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True, nullable=False)
     role = Column(Enum("Master", "Admin", "Worker", name="role", schema="namdo"), default="Worker", nullable=False)
     

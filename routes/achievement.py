@@ -24,15 +24,15 @@ async def achievement_root(request: Request,
 
         params = Achievement(
             # id = params.get('id'),
-            user_id = params['user_id'],
+            user_name = params['user_name'],
             gant_id = params['gant_id'],
             accomplishment = int(params['accomplishment']),
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
-    if params.user_id=="":
-        raise HTTPException(status_code=400, detail="Bad Request(user_id)")
+    if params.user_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(user_name)")
     if params.gant_id=="":
         raise HTTPException(status_code=400, detail="Bad Request(gant_id)")
 
@@ -59,13 +59,7 @@ async def achievement_root(gant_id, request: Request,
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     # 2. Execute Business Logic
-    response = postgresql.session.query(Achievement).join(
-        Users, Achievement.user_id==Users.user_id).with_entities(
-        Achievement.id,
-        Users.name,
-        Achievement.gant_id,
-        Achievement.accomplishment,
-        ).filter(
+    response = postgresql.session.query(Achievement).filter(
         Achievement.gant_id==params.gant_id).all()
 
     # 3. Reponse
@@ -93,11 +87,14 @@ async def achievement_root(gant_id, request: Request,
 
     sum = postgresql.session.query(
         func.sum(Achievement.accomplishment)
-    ).join(
-        Users, Achievement.user_id==Users.user_id
     ).filter(
         Achievement.gant_id==params.gant_id
     ).scalar()
+    
+    if total is None:
+        total = 0
+    if sum is None:
+        sum = 0
 
     # 3. Reponse
     return {
