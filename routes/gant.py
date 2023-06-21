@@ -1,13 +1,9 @@
-from fastapi import APIRouter, HTTPException, Request, responses, Depends
-from typing import Optional
-from datetime import datetime, timedelta
+from fastapi import APIRouter, HTTPException, Request, Depends
+from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
 
 from models import postgresql
 from models.gant import Gant
-from models.plan import Plan
-from models.process import Process
 from services import gant_service
 
 router = APIRouter()

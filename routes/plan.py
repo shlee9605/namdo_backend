@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
-from typing import Optional
 from sqlalchemy.orm import Session
 
 from models import postgresql

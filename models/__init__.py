@@ -6,7 +6,7 @@ from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import sessionmaker
 
 from models import users, plan, process, facility, bom, gant, achievement
-from libs.hashUtil import hashPassword, verifyPassword
+from libs.hashUtil import hashPassword
 
 # Base = declarative_base()
 

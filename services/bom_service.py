@@ -7,7 +7,7 @@ async def input(params):
     # 1. check process data validate
     result = await process_dao.read(params.process[0])
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Process Data")
+        raise HTTPException(status_code=404, detail="No Existing Process Data")
 
     # 2. check existing product_unit data
     result = await bom_dao.read_by_unit(params.product_unit)
@@ -35,12 +35,12 @@ async def edit(params):
     for process in params.process:
         result = await process_dao.read(process)
         if result is None:
-            raise HTTPException(status_code=400, detail="No Existing Process Data")
+            raise HTTPException(status_code=404, detail="No Existing Process Data")
     
     # 2. find data
     result = await bom_dao.read_by_unit(params.product_unit)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing BOM Data")
+        raise HTTPException(status_code=404, detail="No Existing BOM Data")
     
     # 3. edit bom
     await bom_dao.update_order(result, params)
@@ -53,11 +53,11 @@ async def erase(params):
     # 1. bom plan
     result = await bom_dao.read_by_unit(params['product_unit'])
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing BOM Data")
+        raise HTTPException(status_code=404, detail="No Existing BOM Data")
 
     # 2. check validation
     if params['order'] >= len(result.process):
-        raise HTTPException(status_code=400, detail="Invalid Order Number")
+        raise HTTPException(status_code=404, detail="Invalid Order Number")
 
     # 3. erase bom
     await bom_dao.delete(result, params['order'])
