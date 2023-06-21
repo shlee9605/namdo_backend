@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, responses, Depends
 from typing import Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import asc
 
 from models import postgresql
 from models.users import Users

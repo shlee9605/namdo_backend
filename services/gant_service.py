@@ -7,15 +7,15 @@ async def input(params):
     # 1. check data validate
     result = await facility_dao.read(params.facility_name)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Facility Data")
+        raise HTTPException(status_code=404, detail="No Existing Facility Data")
 
     result = await process_dao.read(params.process_name)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Process Data")
+        raise HTTPException(status_code=404, detail="No Existing Process Data")
     
     result = await plan_dao.read(params.plan_id)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Plan Data")
+        raise HTTPException(status_code=404, detail="No Existing Plan Data")
 
     # 2. input gant
     result = await gant_dao.create(params)
@@ -47,12 +47,12 @@ async def edit(params):
     # 1. check facility data validate
     result = await facility_dao.read(params.facility_name)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Facility Data")
+        raise HTTPException(status_code=404, detail="No Existing Facility Data")
 
     # 2. find data
     result = await gant_dao.read(params.id)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Gant Data")
+        raise HTTPException(status_code=404, detail="No Existing Gant Data")
     
     # 3. edit gant
     await gant_dao.update(result, params)
@@ -65,7 +65,7 @@ async def erase(params):
     # 1. find data
     result = await gant_dao.read(params.id)
     if result is None:
-        raise HTTPException(status_code=400, detail="No Existing Gant Data")
+        raise HTTPException(status_code=404, detail="No Existing Gant Data")
     
     # 2. erase gant
     await gant_dao.delete(result)
