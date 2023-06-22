@@ -33,7 +33,9 @@ async def read_by_userid(params):
 # Read name Users Data
 async def read_by_name(params):
     # 1. Read Users Data
-    result = postgresql.session.query(Users).filter(Users.name==params).first()
+    result = postgresql.session.query(Users).filter(Users.name==params
+                                                    ).with_entities(
+        Users.id, Users.user_id, Users.name, Users.email, Users.role).first()
 
     # 2. Return at Success
     return result
@@ -41,7 +43,9 @@ async def read_by_name(params):
 # Read email Users Data
 async def read_by_email(params):
     # 1. Read Users Data
-    result = postgresql.session.query(Users).filter(Users.email==params).first()
+    result = postgresql.session.query(Users).filter(Users.email==params
+                                                    ).with_entities(
+        Users.id, Users.user_id, Users.name, Users.email, Users.role).first()
 
     # 2. Return at Success
     return result

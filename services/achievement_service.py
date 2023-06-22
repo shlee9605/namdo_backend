@@ -48,19 +48,36 @@ async def output_detail_accomplishment(params):
         "accomplishment": int(total)-result
     }
 
-# edit achievement data
-async def edit(params):
-    return
-
-# erase achievement data
-async def erase(params):
+# edit achievement(detail) data
+async def edit_detail(params, current_user):
     # 1. find data
     result = await achievement_dao.read(params.id)
     if result is None:
         raise HTTPException(status_code=404, detail="No Existing Achievement Data")
 
-    # 2. erase achievement
+    # 2. check authority
+    if current_user.name != result.user_name and current_user.role not in ["Master", "Admin"]:
+        raise HTTPException(status_code=403, detail="Insufficient Privileges")
+
+    # 3. edit achievement
+    await achievement_dao.update_detail(result, params)
+
+    # 4. return at success
+    return result
+
+# erase achievement data
+async def erase(params, current_user):
+    # 1. find data
+    result = await achievement_dao.read(params.id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="No Existing Achievement Data")
+
+    # 2. check authority
+    if current_user.name != result.user_name and current_user.role not in ["Master", "Admin"]:
+        raise HTTPException(status_code=403, detail="Insufficient Privileges")
+
+    # 3. erase achievement
     await achievement_dao.delete(result)
 
-    # 3. return at success
+    # 4. return at success
     return result

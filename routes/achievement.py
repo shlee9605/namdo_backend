@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from models import postgresql
-from libs.authUtil import check_Master
+from libs.authUtil import check_Master, current_User
 from models.achievement import Achievement
 from models.gant import Gant
 from models.users import Users
@@ -99,7 +99,8 @@ async def achievement_root(user_name, request: Request,
 # update achievement data
 @router.put("/achievement/detail", status_code=200)
 async def achievement_root(request: Request, 
-                    session: Session=Depends(postgresql.connect)):
+                    session: Session=Depends(postgresql.connect),
+                    current_user = Depends(current_User)):
     # 1. Check Request      
     try:
         params = await request.json()
@@ -117,11 +118,11 @@ async def achievement_root(request: Request,
         raise HTTPException(status_code=400, detail="Bad Request(gant_id)")
 
     # 2. Execute Business Logic
-    # response = await plan_service.edit(params)
-    response = postgresql.session.query(Achievement).filter(Achievement.id==params.id).one_or_none()
-    response.accomplishment = params.accomplishment
-    postgresql.session.commit()
-    postgresql.session.refresh(response)
+    response = await achievement_service.edit_detail(params, current_user)
+    # response = postgresql.session.query(Achievement).filter(Achievement.id==params.id).one_or_none()
+    # response.accomplishment = params.accomplishment
+    # postgresql.session.commit()
+    # postgresql.session.refresh(response)
 
     # 3. Response
     return response
@@ -163,7 +164,8 @@ async def achievement_root(request: Request,
 # delete achievement data
 @router.delete("/achievement/{id}", status_code=200)
 async def achievement_root(id, request: Request, 
-                           session: Session=Depends(postgresql.connect)):
+                           session: Session=Depends(postgresql.connect),
+                           current_user = Depends(current_User)):
     # 1. Check Request
     try:
         params = Achievement(
@@ -173,7 +175,7 @@ async def achievement_root(id, request: Request,
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     # 2. Execute Business Logic
-    response = await achievement_service.erase(params)
+    response = await achievement_service.erase(params, current_user)
 
     # 3. Response
     return response
