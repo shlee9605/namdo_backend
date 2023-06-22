@@ -25,7 +25,7 @@ async def read(params):
 # Read Achievement Data by gant_id
 async def read_by_gantid(params):
     # 1. Read Achievement Data
-    result = postgresql.session.query(Achievement).filter(Achievement.gant_id==params).one_or_none()
+    result = postgresql.session.query(Achievement).filter(Achievement.gant_id==params).all()
 
     # 2. Return at Success
     return result
@@ -33,7 +33,7 @@ async def read_by_gantid(params):
 # Read Achievement Data by user_name
 async def read_by_username(params):
     # 1. Read Achievement Data
-    result = postgresql.session.query(Achievement).filter(Achievement.user_name==params).one_or_none()
+    result = postgresql.session.query(Achievement).filter(Achievement.user_name==params).all()
 
     # 2. Return at Success
     return result
@@ -61,17 +61,25 @@ async def read_sum_accomplishment(params):
     #          Gant.process_name==response.process_name)
     # ).all()
 
-# Update Achievement Data
-# async def update(params, new_params):
-#     # 1. Update Achievement Data
-#     params.start_date = new_params.start_date
-#     params.end_date = new_params.end_date
-#     params.facility_name = new_params.facility_name
-#     postgresql.session.commit()
-#     postgresql.session.refresh(params)
+# Update Achievement(detail) Data
+async def update_detail(params, new_params):
+    # 1. Update Achievement Data
+    params.accomplishment = new_params.accomplishment
+    postgresql.session.commit()
+    postgresql.session.refresh(params)
 
-#     # 2. Return at Success
-#     return params
+    # 2. Return at Success
+    return params
+
+# Update Achievement(master) Data
+async def update(params, new_params):
+    # 1. Update Achievement Data
+    params.accomplishment = new_params.accomplishment
+    postgresql.session.commit()
+    postgresql.session.refresh(params)
+
+    # 2. Return at Success
+    return params
 
 # Delete Achievement Data
 async def delete(params):

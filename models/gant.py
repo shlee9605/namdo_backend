@@ -12,3 +12,5 @@ class Gant(Base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     facility_name = Column(String, nullable=False)
+    background_color = Column(String, nullable=False)
+

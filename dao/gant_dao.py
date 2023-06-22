@@ -34,7 +34,8 @@ async def read_by_date(params):
         Plan.amount,
         Gant.start_date, 
         Gant.end_date, 
-        Gant.facility_name).filter(
+        Gant.facility_name,
+        Gant.background_color).filter(
         and_(Gant.start_date<=(params + timedelta(days=30)), 
              Gant.end_date>=params)).all()
     
@@ -66,6 +67,7 @@ async def update(params, new_params):
     params.start_date = new_params.start_date
     params.end_date = new_params.end_date
     params.facility_name = new_params.facility_name
+    params.background_color = new_params.background_color
     postgresql.session.commit()
     postgresql.session.refresh(params)
 

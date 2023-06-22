@@ -11,7 +11,6 @@ async def check_Master(request: Request, session: Session=Depends(postgresql.con
     user_id = request.state.payload.get("sub")
 
     # 2. Get Token User Data
-    # result = postgresql.session.query(Users).filter(Users.user_id==user_id).first()
     result = await user_dao.read_by_userid(user_id)
 
     # 3. Check Privileges
@@ -27,11 +26,10 @@ async def check_Admin(request: Request, session: Session=Depends(postgresql.conn
     user_id = request.state.payload.get("sub")
 
     # 2. Get Token User Data
-    # result = postgresql.session.query(Users).filter(Users.user_id==user_id).first()
     result = await user_dao.read_by_userid(user_id)
 
     # 3. Check Privileges
-    if result.role != "Admin" and result.role != "Master":
+    if result.role not in ["Master", "Admin"]:
         raise HTTPException(status_code=403, detail="Insufficient privileges(Administrator)")
     
     # 4. Return Current User Data
@@ -43,7 +41,6 @@ async def current_User(request: Request, session: Session=Depends(postgresql.con
     user_id = request.state.payload.get("sub")
 
     # 2. Get Token User Data
-    # result = postgresql.session.query(Users).filter(Users.user_id==user_id).first()
     result = await user_dao.read_by_userid(user_id)
 
     # 3. Return Current User Data
