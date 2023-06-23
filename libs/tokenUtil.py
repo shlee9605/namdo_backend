@@ -6,14 +6,15 @@ from fastapi import HTTPException, Header, Request
 from fastapi.responses import JSONResponse
 
 # make token at login
-def makeToken(user_id, role):
+def makeToken(user_id, name, role):
     # 1. Make Token
     data = {
         "sub": user_id,
+        "name": name,
         "role": role,
         "exp": datetime.utcnow()+timedelta(minutes=int(os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"]))
     }
-    if not data["sub"] or not data["exp"] or not data["role"]:
+    if not data["sub"] or not data["exp"] or not data["role"] or not data["name"]:
         raise HTTPException(status_code=500, detail="Create Token Failed")
 
     # 2. Return JWT Token Encoded
@@ -81,7 +82,7 @@ async def middlewareToken(request: Request, call_next):
         
         response.headers["Access-Control-Allow-Headers"] = "Authorization"
         response.headers["authorization"] = os.environ["TOKEN_TYPE"] + \
-            " " + makeToken(payload.get("sub"), payload.get("role")) + " "
+            " " + makeToken(payload.get("sub"), payload.get("name"), payload.get("role")) + " "
     except HTTPException as e:
         response = JSONResponse(status_code=e.status_code, content={"detail": e.detail})
     

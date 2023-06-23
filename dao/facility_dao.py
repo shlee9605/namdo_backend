@@ -16,7 +16,13 @@ async def create(params):
 # Read All Facility Data
 async def read_all(params):
     # 1. Read Facility Data
-    result = postgresql.session.query(Facility).filter(Facility.facility_name.like('%'+params+'%')).order_by(asc(Facility.facility_name)).all()
+    result = postgresql.session.query(
+        Facility
+    ).filter(
+        Facility.facility_name.like('%'+params+'%')
+    ).order_by(
+        asc(Facility.facility_name)
+    ).all()
 
     # 2. Return at Success
     return result

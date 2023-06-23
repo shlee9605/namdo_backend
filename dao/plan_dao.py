@@ -2,6 +2,7 @@ from sqlalchemy import asc
 
 from models import postgresql
 from models.plan import Plan
+from models.gant import Gant
 
 # Create Plan Data
 async def create(params):
@@ -50,6 +51,16 @@ async def update(params, new_params):
     params.amount = new_params.amount
     params.deadline = new_params.deadline
     params.note = new_params.note
+    postgresql.session.commit()
+    postgresql.session.refresh(params)
+
+    # 2. Return at Success
+    return params
+
+# Update Plan Data
+async def update_state(params, new_state):
+    # 1. Update Plan Data
+    params.state = new_state
     postgresql.session.commit()
     postgresql.session.refresh(params)
 

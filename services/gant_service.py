@@ -36,6 +36,7 @@ async def output(params):
             "start_date": i.start_date,
             "end_date": i.end_date,
             "facility_name": i.facility_name,
+            "background_color": i.background_color,
         }
         result.append(data)
 

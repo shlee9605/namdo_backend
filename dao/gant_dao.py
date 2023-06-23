@@ -42,32 +42,13 @@ async def read_by_date(params):
     # 2. Return at Success
     return result
 
-# Read Plan Amount
-async def read_plan_amount(params):
-    # 1. Read Plan Amount
-    result = postgresql.session.query(Gant).join(
-        Plan, Gant.plan_id==Plan.id).with_entities(
-        Plan.amount
-        ).filter(
-        Gant.id==params
-        ).scalar()
-    
-    # 2. Return at Success
-    return result
-
-# response = postgresql.session.query(Gant
-    # ).filter(
-    #     and_(Gant.plan_id==response.plan_id, 
-    #          Gant.process_name==response.process_name)
-    # ).all()
-
 # Update Gant Data
 async def update(params, new_params):
     # 1. Update Gant Data
     params.start_date = new_params.start_date
     params.end_date = new_params.end_date
     params.facility_name = new_params.facility_name
-    params.background_color = new_params.background_color
+    # params.background_color = new_params.background_color
     postgresql.session.commit()
     postgresql.session.refresh(params)
 

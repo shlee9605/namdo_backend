@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, MetaData
+from sqlalchemy import Column, Integer, String, DateTime,MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
 # Achievement Data
@@ -10,4 +10,5 @@ class Achievement(Base):
     user_name = Column(String, nullable=False, index=True)
     gant_id = Column(Integer, nullable=False, index=True)
     accomplishment = Column(Integer, nullable=False)
+    workdate = Column(DateTime, nullable=False)
 

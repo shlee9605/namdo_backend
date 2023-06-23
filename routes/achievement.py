@@ -8,6 +8,7 @@ from models.achievement import Achievement
 from models.gant import Gant
 from models.users import Users
 from models.plan import Plan
+from models.bom import BOM
 from services import achievement_service
 
 router = APIRouter()
@@ -25,6 +26,7 @@ async def achievement_root(request: Request,
             user_name = params['user_name'],
             gant_id = params['gant_id'],
             accomplishment = int(params['accomplishment']),
+            workdate = params['workdate'],
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
@@ -33,6 +35,8 @@ async def achievement_root(request: Request,
         raise HTTPException(status_code=400, detail="Bad Request(user_name)")
     if params.gant_id=="":
         raise HTTPException(status_code=400, detail="Bad Request(gant_id)")
+    if params.workdate=="":
+        raise HTTPException(status_code=400, detail="Bad Request(workdate)")
 
     # 2. Execute Business Logic
     response = await achievement_service.input(params)
@@ -91,7 +95,46 @@ async def achievement_root(user_name, request: Request,
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     # 2. Execute Business Logic
-    response = postgresql.session.query(Achievement).filter(Achievement.user_name==params.user_name).all()
+    response = await achievement_service.output_master(params)
+
+    # response = postgresql.session.query(
+    #     Achievement
+    # ).join(
+    #     Gant, Gant.id == Achievement.gant_id
+    # ).join(
+    #     Plan, Plan.id == Gant.plan_id
+    # ).with_entities(
+    #     Achievement.id,
+    #     Achievement.user_name,
+    #     Achievement.accomplishment,
+    #     Gant.process_name,
+    #     Gant.facility_name,
+    #     # Plan.amount,
+    #     Plan.product_unit,
+    #     Plan.company,
+    #     Plan.product_name,
+    # ).filter(
+    #     Achievement.user_name==params.user_name
+    # ).all()
+
+    # 3. Reponse
+    return response
+
+# read achievement dashboard data
+@router.get("/achievement/dashboard", status_code=200)
+async def achievement_root(request: Request, 
+                    param: Optional[str] = None,
+                    session: Session=Depends(postgresql.connect)):
+    # 1. Check Request
+    # try:
+    #     params = Achievement(
+    #         gant_id = gant_id,
+    #     )
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    # 2. Execute Business Logic
+    response = await achievement_service.output_dashboard("none")
 
     # 3. Reponse
     return response
@@ -108,21 +151,16 @@ async def achievement_root(request: Request,
         params = Achievement(
             id = int(params['id']),
             accomplishment = int(params['accomplishment']),
+            workdate = params['workdate'],
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
-    if params.user_name=="":
-        raise HTTPException(status_code=400, detail="Bad Request(user_id)")
-    if params.gant_id=="":
-        raise HTTPException(status_code=400, detail="Bad Request(gant_id)")
+    if params.workdate=="":
+        raise HTTPException(status_code=400, detail="Bad Request(workdate)")
 
     # 2. Execute Business Logic
-    response = await achievement_service.edit_detail(params, current_user)
-    # response = postgresql.session.query(Achievement).filter(Achievement.id==params.id).one_or_none()
-    # response.accomplishment = params.accomplishment
-    # postgresql.session.commit()
-    # postgresql.session.refresh(response)
+    response = await achievement_service.edit(params, current_user)
 
     # 3. Response
     return response
@@ -130,33 +168,25 @@ async def achievement_root(request: Request,
 # update master achievement data
 @router.put("/achievement/master", status_code=200)
 async def achievement_root(request: Request, 
-                    session: Session=Depends(postgresql.connect)):
+                    session: Session=Depends(postgresql.connect),
+                    current_user = Depends(check_Master)):
     # 1. Check Request      
     try:
         params = await request.json()
 
         params = Achievement(
             id = int(params['id']),
-            user_name = params['user_name'],
-            gant_id = params['gant_id'],
             accomplishment = int(params['accomplishment']),
+            workdate = params['workdate'],
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
-    if params.user_id=="":
-        raise HTTPException(status_code=400, detail="Bad Request(user_id)")
-    if params.gant_id=="":
-        raise HTTPException(status_code=400, detail="Bad Request(gant_id)")
+    if params.workdate=="":
+        raise HTTPException(status_code=400, detail="Bad Request(workdate)")
 
     # 2. Execute Business Logic
-    # response = await plan_service.edit(params)
-    response = postgresql.session.query(Achievement).filter(Achievement.id==params.id).one_or_none()
-    response.user_name = params.user_name
-    response.gant_id = params.gant_id
-    response.accomplishment = params.accomplishment
-    postgresql.session.commit()
-    postgresql.session.refresh(response)
+    response = await achievement_service.edit(params, current_user)
 
     # 3. Response
     return response
