@@ -79,7 +79,7 @@ async def gant_root(id, request: Request,
             start_date = params["start_date"],
             end_date = params["end_date"],
             facility_name = params['facility_name'],
-            background_color = params['background_color'],
+            # background_color = params['background_color'],
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
@@ -94,8 +94,8 @@ async def gant_root(id, request: Request,
         raise HTTPException(status_code=400, detail="Bad Request(end_date)")
     if params.facility_name=="":
         raise HTTPException(status_code=400, detail="Bad Request(facility_name)")
-    if params.background_color=="":
-        raise HTTPException(status_code=400, detail="Bad Request(background_color)")
+    # if params.background_color=="":
+    #     raise HTTPException(status_code=400, detail="Bad Request(background_color)")
 
     # 2. Execute Business Logic
     response = await gant_service.edit(params)
