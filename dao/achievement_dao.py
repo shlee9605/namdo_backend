@@ -95,7 +95,6 @@ async def read_dashboard(params):
 
 # Read Accomplishment Group By Process_Name By Plan
 async def read_process_accomplishment(params):
-# async def test(params):
     result = postgresql.session.query(
         Gant.process_name,
         func.sum(Achievement.accomplishment).label('accomplishment'),

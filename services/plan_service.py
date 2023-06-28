@@ -4,10 +4,15 @@ from dao import plan_dao
 
 # input plan data
 async def input(params):
-    # 1. input plan
+    # 1. check
+    result = await plan_dao.read(params.id)
+    if result is not None:
+        raise HTTPException(status_code=404, detail="Existing Plan ID Data")
+
+    # 2. input plan
     result = await plan_dao.create(params)
 
-    # 2. return at success
+    # 3. return at success
     return result
 
 # output plan data
