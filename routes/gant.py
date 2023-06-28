@@ -10,7 +10,7 @@ router = APIRouter()
 
 # create gant data
 @router.post("/gant", status_code=201)
-async def gant_root(request: Request, 
+async def gant_create(request: Request, 
                     session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
@@ -50,7 +50,7 @@ async def gant_root(request: Request,
 
 # read gant data
 @router.get("/gant/{search_date}", status_code=200)
-async def gant_root(search_date, request: Request, 
+async def gant_read(search_date, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     # 1. Execute Business Logic
     try:
@@ -63,9 +63,9 @@ async def gant_root(search_date, request: Request,
     # 2. Reponse
     return response
 
-# # update gant data
+# update gant data
 @router.put("/gant/{id}", status_code=200)
-async def gant_root(id, request: Request, 
+async def gant_update(id, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     if id is None:
@@ -105,7 +105,7 @@ async def gant_root(id, request: Request,
 
 # delete plan data
 @router.delete("/gant/{id}", status_code=200)
-async def gant_root(id, request: Request, 
+async def gant_delete(id, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:

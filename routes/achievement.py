@@ -64,7 +64,7 @@ async def achievement_root(gant_id, request: Request,
 
 # read accomplishment data
 @router.get("/achievement/detail/{gant_id}/accomplishment", status_code=200)
-async def achievement_root(gant_id, request: Request, 
+async def achievement_read_detail_accomplishment(gant_id, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
@@ -82,7 +82,7 @@ async def achievement_root(gant_id, request: Request,
 
 # read Master achievement data
 @router.get("/achievement/master/{user_name}", status_code=200)
-async def achievement_root(user_name, request: Request, 
+async def achievement_read_master(user_name, request: Request, 
                     session: Session=Depends(postgresql.connect),
                     current_user = Depends(check_Master)
                     ):
@@ -96,26 +96,6 @@ async def achievement_root(user_name, request: Request,
 
     # 2. Execute Business Logic
     response = await achievement_service.output_master(params)
-
-    # response = postgresql.session.query(
-    #     Achievement
-    # ).join(
-    #     Gant, Gant.id == Achievement.gant_id
-    # ).join(
-    #     Plan, Plan.id == Gant.plan_id
-    # ).with_entities(
-    #     Achievement.id,
-    #     Achievement.user_name,
-    #     Achievement.accomplishment,
-    #     Gant.process_name,
-    #     Gant.facility_name,
-    #     # Plan.amount,
-    #     Plan.product_unit,
-    #     Plan.company,
-    #     Plan.product_name,
-    # ).filter(
-    #     Achievement.user_name==params.user_name
-    # ).all()
 
     # 3. Reponse
     return response

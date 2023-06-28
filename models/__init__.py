@@ -61,10 +61,11 @@ class PostgreSQL:
         print("db connected")
         self.session.close()
 
-    def connect(self):
+    async def connect(self):
+        sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        self.session = sessionLocal()
         try:
-            sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-            self.session = sessionLocal()
+            yield self.session
         finally:
             self.session.close()
     
