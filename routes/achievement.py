@@ -102,7 +102,7 @@ async def achievement_read_master(user_name, request: Request,
 
 # read achievement dashboard data
 @router.get("/achievement/dashboard", status_code=200)
-async def achievement_root(request: Request, 
+async def achievement_read_dashboard(request: Request, 
                     param: Optional[str] = None,
                     session: Session=Depends(postgresql.connect)):
     # 1. Check Request
@@ -121,7 +121,7 @@ async def achievement_root(request: Request,
 
 # update achievement data
 @router.put("/achievement/detail", status_code=200)
-async def achievement_root(request: Request, 
+async def achievement_update_detail(request: Request, 
                     session: Session=Depends(postgresql.connect),
                     current_user = Depends(current_User)):
     # 1. Check Request      
@@ -147,7 +147,7 @@ async def achievement_root(request: Request,
 
 # update master achievement data
 @router.put("/achievement/master", status_code=200)
-async def achievement_root(request: Request, 
+async def achievement_update_master(request: Request, 
                     session: Session=Depends(postgresql.connect),
                     current_user = Depends(check_Master)):
     # 1. Check Request      
@@ -173,7 +173,7 @@ async def achievement_root(request: Request,
 
 # delete achievement data
 @router.delete("/achievement/{id}", status_code=200)
-async def achievement_root(id, request: Request, 
+async def achievement_delete(id, request: Request, 
                            session: Session=Depends(postgresql.connect),
                            current_user = Depends(current_User)):
     # 1. Check Request
