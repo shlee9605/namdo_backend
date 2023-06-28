@@ -32,10 +32,10 @@ async def output(params):
 # edit bom data
 async def edit(params):
     # 1. check process data validate
-    for process in params.process:
-        result = await process_dao.read(process)
-        if result is None:
-            raise HTTPException(status_code=404, detail="No Existing Process Data")
+    # for process in params.process:
+    #     result = await process_dao.read(process)
+    #     if result is None:
+    #         raise HTTPException(status_code=404, detail="No Existing Process Data")
     
     # 2. find data
     result = await bom_dao.read_by_unit(params.product_unit)

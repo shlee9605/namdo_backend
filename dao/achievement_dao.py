@@ -93,21 +93,6 @@ async def read_dashboard(params):
     # 2. Return at Success
     return result
 
-# Read Accomplishment Sum Data
-async def read_process_sum_accomplishment(params):
-    # 1. Read Accomplishment Sum Data
-    result = postgresql.session.query(
-        func.sum(Achievement.accomplishment)
-    ).join(
-        Gant, Gant.id == Achievement.gant_id
-    ).filter(
-        and_(Gant.plan_id==params.plan_id,
-             Gant.process_name==params.process_name)
-    ).scalar()
-
-    # 2. Return at Success
-    return result
-
 # Read Accomplishment Group By Process_Name By Plan
 async def read_process_accomplishment(params):
 # async def test(params):

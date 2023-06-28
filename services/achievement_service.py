@@ -85,12 +85,18 @@ async def output_detail_accomplishment(params):
     # 1. get achieved, plan data
     states, gant, plan = await util_output_achieved_plan(params)
     
+    # 2. export achievement data, if none, bring plan amount
+    result = None
+
     for i, state in enumerate(states):
         if state[0] == gant.process_name:
             result = state[2]
             break
 
-    # 2. return at success
+    if result is None:
+        result = int(plan.amount)
+
+    # 3. return at success
     return {
         "accomplishment": result
     }
