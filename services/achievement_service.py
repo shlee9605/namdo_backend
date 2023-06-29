@@ -62,18 +62,19 @@ async def input(params):
     if user is None:
         raise HTTPException(status_code=404, detail="No Existing User Data")
     
-    # 2. read gant, plan, states
-    states, gant, plan = await util_output_achieved_plan(params)
-    
-    # 3. update state
-    await util_edit_achieved_plan(states, gant, plan, 0, params.accomplishment)
-
+    # 2. set workdate data by current time
     params.workdate = datetime.now()
 
-    # 3. input achievement data
+    # 3. read gant, plan, states
+    states, gant, plan = await util_output_achieved_plan(params)
+    
+    # 4. update state
+    await util_edit_achieved_plan(states, gant, plan, 0, params.accomplishment)
+
+    # 5. input achievement data
     result = await achievement_dao.create(params)
     
-    # 4. return at success
+    # 6. return at success
     return result
 
 # output achievement Detail data
@@ -150,8 +151,8 @@ async def output_dashboard(filter, date, params):
     # 2. return at success
     return result
 
-# edit achievement data
-async def edit(params, current_user):
+# edit achievement accomplishment data
+async def edit_accomplishment(params, current_user):
     # 1. find data
     result = await achievement_dao.read(params.id)
     if result is None:
@@ -168,9 +169,42 @@ async def edit(params, current_user):
     await util_edit_achieved_plan(states, gant, plan, result.accomplishment, params.accomplishment)
 
     # 5. edit achievement
-    await achievement_dao.update_detail(result, params)
+    await achievement_dao.update_detail_accomplishment(result, params)
 
     # 6. return at success
+    return result
+
+# edit achievement data
+async def edit(params, current_user, option):
+    # 1. find data
+    result = await achievement_dao.read(params.id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="No Existing Achievement Data")
+
+    # 2. check authority
+    if current_user.name != result.user_name and current_user.role not in ["Master", "Admin"]:
+        raise HTTPException(status_code=403, detail="Insufficient Privileges")
+
+    # 3. edit achievement for workdate
+    if option == "detail_workdate":
+        await achievement_dao.update_detail_workdate(result, params)
+        return result
+    
+    # 4. read gant, plan, states
+    states, gant, plan = await util_output_achieved_plan(result)
+
+    # 5. update state
+    await util_edit_achieved_plan(states, gant, plan, result.accomplishment, params.accomplishment)
+
+    # 6. edit achievement
+    if option == "detail_accomplishment":
+        await achievement_dao.update_detail_accomplishment(result, params)
+    elif option == "master":
+        await achievement_dao.update(result, params)
+    else:
+        raise HTTPException(status_code=404, detail="No Data Found")
+
+    # 7. return at success
     return result
 
 # erase achievement data
