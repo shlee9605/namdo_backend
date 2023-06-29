@@ -24,7 +24,11 @@ async def read_all(params):
 # Read Process Data
 async def read(params):
     # 1. Read Process Data
-    result = postgresql.session.query(Process).filter(Process.process_name==params).first()
+    result = postgresql.session.query(
+        Process
+        ).filter(
+        Process.process_name==params
+        ).first()
 
     # 2. Return at Success
     return result

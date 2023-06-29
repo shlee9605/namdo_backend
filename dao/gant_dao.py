@@ -23,10 +23,26 @@ async def read(params):
     # 2. Return at Success
     return result
 
+# Read Color Gant Data
+async def read_color(plan_id, process_name):
+    # 1. Read Gant Data
+    result = postgresql.session.query(
+        Gant.background_color
+        ).filter(
+        Gant.plan_id==plan_id,
+        Gant.process_name==process_name,
+        ).scalar()
+
+    # 2. Return at Success
+    return result
+
 # Read Date Gant Data
 async def read_by_date(params):
     # 1. Read Gant Data
-    result = postgresql.session.query(Gant).join(Plan, Gant.plan_id==Plan.id
+    result = postgresql.session.query(
+        Gant
+        ).join(
+        Plan, Gant.plan_id==Plan.id
         ).with_entities(
         Gant.id, 
         Plan.product_unit, 
@@ -35,7 +51,8 @@ async def read_by_date(params):
         Gant.start_date, 
         Gant.end_date, 
         Gant.facility_name,
-        Gant.background_color).filter(
+        Gant.background_color
+        ).filter(
         and_(Gant.start_date<=(params + timedelta(days=30)), 
              Gant.end_date>=params)).all()
     

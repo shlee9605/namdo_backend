@@ -56,6 +56,10 @@ async def middlewareToken(request: Request, call_next):
     if request.url.path.startswith('/auth'):
         response = await call_next(request)
         return response
+    
+    if request.url.path.startswith('/docs'):
+        response = await call_next(request)
+        return response
 
     # if request.url.path.startswith('/process') and request.method in ["POST", "PUT", "GET", "DELETE"]:
     #     response = await call_next(request)
