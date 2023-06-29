@@ -1,4 +1,6 @@
 from fastapi import HTTPException
+from datetime import datetime
+
 from dao import user_dao, gant_dao, achievement_dao, plan_dao
 
 # output plan state
@@ -37,7 +39,7 @@ async def util_edit_achieved_plan(states, gant, plan, origin, new):
                 # state[3],  # amount
                 # 'Done' if state[3] - params.accomplishment <= 0 else 'Working',  # state
             )
-        print(states[i])
+        
         if states[i][2] > 0:
             done_case = False
         if states[i][1] > 0:
@@ -65,6 +67,8 @@ async def input(params):
     
     # 3. update state
     await util_edit_achieved_plan(states, gant, plan, 0, params.accomplishment)
+
+    params.workdate = datetime.now()
 
     # 3. input achievement data
     result = await achievement_dao.create(params)
@@ -109,10 +113,39 @@ async def output_master(params):
     # 2. return at success
     return result
 
-# output achievement Dashboard data
-async def output_dashboard(params):
+# output achievement Dashboard data test
+async def output_dashboard_all(params):
     # 1. output achievement
     result = await achievement_dao.read_dashboard(params)
+
+    # 2. return at success
+    return result
+
+# output achievement Dashboard data
+async def output_dashboard(filter, date, params):
+    # 1. check request & output achievement
+    if filter == "company" and date is True:
+        result = await achievement_dao.read_dashboard_company_date(params)
+    elif filter == "company" and date is False:
+        result = await achievement_dao.read_dashboard_company(params)
+
+    elif filter == "product" and date is True:
+        result = await achievement_dao.read_dashboard_product_date(params)
+    elif filter == "product" and date is False:
+        result = await achievement_dao.read_dashboard_product(params)
+
+    elif filter == "process" and date is True:
+        result = await achievement_dao.read_dashboard_process_date(params)
+    elif filter == "process" and date is False:
+        result = await achievement_dao.read_dashboard_process(params)
+    
+    elif filter == "facility" and date is True:
+        result = await achievement_dao.read_dashboard_facility_date(params)
+    elif filter == "facility" and date is False:
+        result = await achievement_dao.read_dashboard_facility(params)
+
+    else:
+        raise HTTPException(status_code=404, detail="No Data Found")
 
     # 2. return at success
     return result

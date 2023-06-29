@@ -26,7 +26,7 @@ async def achievement_root(request: Request,
             user_name = params['user_name'],
             gant_id = params['gant_id'],
             accomplishment = int(params['accomplishment']),
-            workdate = params['workdate'],
+            # workdate = params['workdate'],
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
@@ -35,12 +35,12 @@ async def achievement_root(request: Request,
         raise HTTPException(status_code=400, detail="Bad Request(user_name)")
     if params.gant_id=="":
         raise HTTPException(status_code=400, detail="Bad Request(gant_id)")
-    if params.workdate=="":
-        raise HTTPException(status_code=400, detail="Bad Request(workdate)")
+    # if params.workdate=="":
+    #     raise HTTPException(status_code=400, detail="Bad Request(workdate)")
 
     # 2. Execute Business Logic
     response = await achievement_service.input(params)
-
+    
     # 3. Response
     return response
 
@@ -100,21 +100,30 @@ async def achievement_read_master(user_name, request: Request,
     # 3. Reponse
     return response
 
-# read achievement dashboard data
+# read achievement dashboard test data
 @router.get("/achievement/dashboard", status_code=200)
+async def achievement_read_dashboard_test(request: Request, 
+                    param: Optional[str] = None,
+                    session: Session=Depends(postgresql.connect)):
+    
+    # 2. Execute Business Logic
+    response = await achievement_service.output_dashboard_all("none")
+
+    # 3. Reponse
+    return response
+
+# read achievement dashboard data
+@router.get("/achievement/dashboard/{filter}/{date}", status_code=200)
 async def achievement_read_dashboard(request: Request, 
+                    filter: str, date: bool,
                     param: Optional[str] = None,
                     session: Session=Depends(postgresql.connect)):
     # 1. Check Request
-    # try:
-    #     params = Achievement(
-    #         gant_id = gant_id,
-    #     )
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+    if filter not in ["company", "product", "process", "facility"]:
+        raise HTTPException(status_code=400, detail="Bad Request")
 
     # 2. Execute Business Logic
-    response = await achievement_service.output_dashboard("none")
+    response = await achievement_service.output_dashboard(filter, date, param)
 
     # 3. Reponse
     return response
