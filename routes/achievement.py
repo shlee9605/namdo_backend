@@ -129,7 +129,7 @@ async def achievement_read_dashboard(request: Request,
     return response
 
 # update achievement data
-@router.put("/achievement/detail", status_code=200)
+@router.put("/achievement/detail/accomplishment", status_code=200)
 async def achievement_update_detail(request: Request, 
                     session: Session=Depends(postgresql.connect),
                     current_user = Depends(current_User)):
@@ -140,6 +140,27 @@ async def achievement_update_detail(request: Request,
         params = Achievement(
             id = int(params['id']),
             accomplishment = int(params['accomplishment']),
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    # 2. Execute Business Logic
+    response = await achievement_service.edit(params, current_user, "detail_accomplishment")
+
+    # 3. Response
+    return response
+
+# update achievement data
+@router.put("/achievement/detail/workdate", status_code=200)
+async def achievement_update_detail(request: Request, 
+                    session: Session=Depends(postgresql.connect),
+                    current_user = Depends(current_User)):
+    # 1. Check Request      
+    try:
+        params = await request.json()
+
+        params = Achievement(
+            id = int(params['id']),
             workdate = params['workdate'],
         )
     except Exception as e:
@@ -149,7 +170,7 @@ async def achievement_update_detail(request: Request,
         raise HTTPException(status_code=400, detail="Bad Request(workdate)")
 
     # 2. Execute Business Logic
-    response = await achievement_service.edit(params, current_user)
+    response = await achievement_service.edit(params, current_user, "detail_workdate")
 
     # 3. Response
     return response
@@ -175,7 +196,7 @@ async def achievement_update_master(request: Request,
         raise HTTPException(status_code=400, detail="Bad Request(workdate)")
 
     # 2. Execute Business Logic
-    response = await achievement_service.edit(params, current_user)
+    response = await achievement_service.edit(params, current_user, "master")
 
     # 3. Response
     return response

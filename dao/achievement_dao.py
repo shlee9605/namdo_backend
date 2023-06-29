@@ -287,10 +287,20 @@ async def read_process_accomplishment(params):
 
     return result
 
-# Update Achievement(detail) Data
-async def update_detail(params, new_params):
+# Update Achievement(detail) accomplishment Data
+async def update_detail_accomplishment(params, new_params):
     # 1. Update Achievement Data
     params.accomplishment = new_params.accomplishment
+    postgresql.session.commit()
+    postgresql.session.refresh(params)
+
+    # 2. Return at Success
+    return params
+
+# Update Achievement(detail) workdate Data
+async def update_detail_workdate(params, new_params):
+    # 1. Update Achievement Data
+    params.workdate = new_params.workdate
     postgresql.session.commit()
     postgresql.session.refresh(params)
 
@@ -301,6 +311,7 @@ async def update_detail(params, new_params):
 async def update(params, new_params):
     # 1. Update Achievement Data
     params.accomplishment = new_params.accomplishment
+    params.workdate = new_params.workdate
     postgresql.session.commit()
     postgresql.session.refresh(params)
 
