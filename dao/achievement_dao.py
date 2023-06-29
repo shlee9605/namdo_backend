@@ -48,7 +48,7 @@ async def read_master_by_username(params):
         Plan, Plan.id == Gant.plan_id
     ).with_entities(
         Achievement.id,
-        Achievement.user_name,
+        # Achievement.user_name,
         Achievement.accomplishment,
         Achievement.workdate,
         Gant.process_name,
