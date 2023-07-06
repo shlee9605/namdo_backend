@@ -1,4 +1,4 @@
-from sqlalchemy import desc
+from sqlalchemy import asc, desc, func
 
 from models import postgresql
 from models.bom import BOM
@@ -29,16 +29,18 @@ async def read_by_plan(params):
         BOM,
     ).filter(
         BOM.plan_id==params
-    ).first()
+    ).order_by(
+        asc(BOM.process_order)
+    ).all()
     
     # 2. Return at Success
     return result
 
 # Read BOM Process Data by Product Unit
-async def read_process_by_unit(params):
+async def read_plan_id_by_unit(params):
     # 1. Read BOM Data
     result = postgresql.session.query(
-        BOM.process
+        BOM.plan_id
     ).join(
         Plan, Plan.id == BOM.plan_id
     ).filter(
@@ -50,11 +52,23 @@ async def read_process_by_unit(params):
     # 2. Return at Success
     return result
 
+# Read BOM Data by plan
+async def read_length_by_plan(plan_id, params):
+    # 1. Read BOM Data
+    result = postgresql.session.query(
+        func.count(BOM.id)
+    ).filter(
+        BOM.plan_id == plan_id,
+        BOM.id.in_(params)
+    ).scalar()
+    
+    # 2. Return at Success
+    return result
+
 # Update BOM Data
-async def update(params, new_params):
+async def update(params, new_order):
     # 1. Update BOM Data
-    params.state = new_params.state
-    params.process = new_params.process
+    params.process_order = new_order
     postgresql.session.commit()
     postgresql.session.refresh(params)
 
@@ -76,16 +90,6 @@ async def delete(params):
     # 1. Delete BOM Data
     postgresql.session.delete(params)
     postgresql.session.commit()
-
-    # 2. Return at Success
-    return params
-
-# Delete BOM Data Process
-async def delete_process(params, order):
-    # 1. Delete BOM Data
-    params.process.pop(order)
-    postgresql.session.commit()
-    postgresql.session.refresh(params)
 
     # 2. Return at Success
     return params

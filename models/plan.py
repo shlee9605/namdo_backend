@@ -22,4 +22,5 @@ class Plan(Base):
     deadline = Column(String)
     note = Column(String)
     # Linked Data
+    bom_state = Column(Enum("Undone", "Editting", "Done", name="state", schema="namdo"), default="Undone")
     background_color = Column(String, nullable=False)

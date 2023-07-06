@@ -57,9 +57,10 @@ async def erase(params):
         raise HTTPException(status_code=404, detail="No Existing Plan Data")
     
     # 2. delete linked bom datas
-    bom = await bom_dao.read_by_plan(params.id)
-    if bom is not None:
-        await bom_dao.delete(bom)
+    boms = await bom_dao.read_by_plan(params.id)
+    if len(boms) != 0:
+        for i in boms:
+            await bom_dao.delete(i)
 
     # 3. erase plan
     await plan_dao.delete(result)

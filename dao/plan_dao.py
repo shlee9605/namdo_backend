@@ -59,6 +59,7 @@ async def read_by_period(params1, params2):
         Plan.product_name,
         Plan.product_unit,
         Plan.amount,
+        Plan.bom_state,
         Plan.background_color,
     ).filter(
         Plan.madedate.between(params1,params2)
@@ -91,6 +92,16 @@ async def update(params, new_params):
 async def update_state(params, new_state):
     # 1. Update Plan Data
     params.state = new_state
+    postgresql.session.commit()
+    postgresql.session.refresh(params)
+
+    # 2. Return at Success
+    return params
+
+# Update BOM State Data
+async def update_bom_state(params, new_params):
+    # 1. Update Plan Data
+    params.bom_state = new_params.bom_state
     postgresql.session.commit()
     postgresql.session.refresh(params)
 

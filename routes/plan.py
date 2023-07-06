@@ -11,7 +11,7 @@ router = APIRouter()
 
 # create plan data
 @router.post("/plan", status_code=201)
-async def plan_root(request: Request, 
+async def plan_create(request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
     # 1. Check Request
@@ -53,7 +53,7 @@ async def plan_root(request: Request,
 
 # read Admin plan data
 @router.get("/plan/{made_date}", status_code=200)
-async def plan_root(made_date, request: Request, 
+async def plan_read_admin(made_date, request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
 
@@ -71,7 +71,7 @@ async def plan_root(made_date, request: Request,
 
 # read Detail plan data
 @router.get("/plan/{start_date}/{end_date}", status_code=200)
-async def plan_root(start_date, end_date, request: Request, 
+async def plan_detail(start_date, end_date, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     
     # 1. Check Request
@@ -92,7 +92,7 @@ async def plan_root(start_date, end_date, request: Request,
 
 # update plan data
 @router.put("/plan", status_code=200)
-async def plan_root(request: Request, 
+async def plan_update(request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
     # 1. Check Request       
@@ -129,7 +129,7 @@ async def plan_root(request: Request,
 
 # delete plan data
 @router.delete("/plan/{id}", status_code=200)
-async def plan_root(id, request: Request, 
+async def plan_delete(id, request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
     # 1. Check Request
