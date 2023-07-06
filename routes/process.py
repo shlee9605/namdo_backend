@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from models import postgresql
-
+from libs.authUtil import check_Admin
 from models.process import Process
 from services import process_service
 
@@ -12,7 +12,8 @@ router = APIRouter()
 # create process data
 @router.post("/process", status_code=201)
 async def process_root(request: Request, 
-                       session: Session=Depends(postgresql.connect)):
+                       session: Session=Depends(postgresql.connect),
+                       current_user= Depends(check_Admin)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -48,7 +49,8 @@ async def process_root(request: Request, param: Optional[str] = None,
 # update process data
 @router.put("/process", status_code=200)
 async def process_root(request: Request, 
-                       session: Session=Depends(postgresql.connect)):
+                       session: Session=Depends(postgresql.connect),
+                       current_user= Depends(check_Admin)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -72,7 +74,8 @@ async def process_root(request: Request,
 # delete process data
 @router.delete("/process", status_code=200)
 async def process_root(request: Request, param: Optional[str] = None, 
-                       session: Session=Depends(postgresql.connect)):
+                       session: Session=Depends(postgresql.connect),
+                       current_user= Depends(check_Admin)):
     # 1. Check Request
     if param is not None:
         params = param

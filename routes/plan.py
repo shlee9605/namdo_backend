@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from models import postgresql
 from libs.authUtil import check_Admin
@@ -18,22 +19,29 @@ async def plan_root(request: Request,
         params = await request.json()
 
         params = Plan(
-            id = params.get('id'),
-            # state = params.get('state'),
-            madedate = params.get('madedate'),
-            company= params.get('company'),
+            madedate = params['madedate'],
+            company= params['company'],
             lot = params.get('lot'),
             material_unit = params.get('material_unit'),
             material_amount = params.get('material_amount'),
-            product_name= params.get('product_name'),
-            product_unit= params.get('product_unit'),
-            amount = params.get('amount'),
+            product_name= params['product_name'],
+            product_unit= params['product_unit'],
+            amount = int(params['amount']),
             deadline= params.get('deadline'),
             note = params.get('note')
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
+    if params.madedate=="":
+        raise HTTPException(status_code=400, detail="Bad Request(madedate)")
+    if params.company=="":
+        raise HTTPException(status_code=400, detail="Bad Request(company)")
+    if params.product_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(product_name)")
+    if params.product_unit=="":
+        raise HTTPException(status_code=400, detail="Bad Request(product_unit)")
+
     # 2. Execute Business Logic
     response = await plan_service.input(params)
     
@@ -45,28 +53,40 @@ async def plan_root(request: Request,
 async def plan_root(made_date, request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
-# async def plan_root(made_date, request: Request, 
-#                     session: Session=Depends(postgresql.connect)):
-    # 1. Execute Business Logic
+
+    # 1. Check Request
+    try:
+        made_date = datetime.strptime(made_date, "%Y%m%d")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    # 2. Execute Business Logic
     response = await plan_service.output_admin(made_date)
     
-    # 2. Reponse
+    # 3. Reponse
     return response
 
 # read Detail plan data
 @router.get("/plan/{start_date}/{end_date}", status_code=200)
 async def plan_root(start_date, end_date, request: Request, 
                     session: Session=Depends(postgresql.connect)):
-    # 1. Execute Business Logic
-    response = await plan_service.output_detail(start_date, end_date)
-    # response = postgresql.session.query(Plan).filter(Plan.madedate.between(start_date,end_date)).all()
     
-    # 2. Reponse
+    # 1. Check Request
+    try:
+        start_date = datetime.strptime(start_date, "%Y%m%d")
+        end_date = datetime.strptime(end_date, "%Y%m%d")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    # 2. Execute Business Logic
+    response = await plan_service.output_detail(start_date, end_date)
+    
+    # 3. Reponse
     return response
 
 # update plan data
-@router.put("/plan/{id}", status_code=200)
-async def plan_root(id, request: Request, 
+@router.put("/plan", status_code=200)
+async def plan_root(request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
     # 1. Check Request
@@ -77,21 +97,27 @@ async def plan_root(id, request: Request,
         params = await request.json()
 
         params = Plan(
-            id = id,
-            madedate = params.get('madedate'),
-            company= params.get('company'),
+            id = int(params['id']),
+            company= params['company'],
             lot = params.get('lot'),
             material_unit = params.get('material_unit'),
             material_amount = params.get('material_amount'),
-            product_name= params.get('product_name'),
-            product_unit= params.get('product_unit'),
-            amount = params.get('amount'),
+            product_name= params['product_name'],
+            product_unit= params['product_unit'],
+            amount = params['amount'],
             deadline= params.get('deadline'),
             note = params.get('note')
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
-    
+
+    if params.company=="":
+        raise HTTPException(status_code=400, detail="Bad Request(company)")
+    if params.product_name=="":
+        raise HTTPException(status_code=400, detail="Bad Request(product_name)")
+    if params.product_unit=="":
+        raise HTTPException(status_code=400, detail="Bad Request(product_unit)")
+
     # 2. Execute Business Logic
     response = await plan_service.edit(params)
 
@@ -116,13 +142,3 @@ async def plan_root(id, request: Request,
 
     # 3. Response
     return response
-
-
-# read madedate data
-# @router.get("/madedate", status_code=200)
-# async def plan_root(request: Request, session: Session=Depends(postgresql.connect)):
-#     # 1. Execute Business Logic
-#     response = postgresql.session.query(Plan.madedate).distinct().all()
-
-#     # 2. Reponse
-#     return response

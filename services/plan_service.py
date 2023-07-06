@@ -1,18 +1,23 @@
 from fastapi import HTTPException
+import random
 
-from dao import plan_dao
+from dao import plan_dao, bom_dao
 
 # input plan data
 async def input(params):
-    # 1. check
+    # 1. check existing data
     result = await plan_dao.read(params.id)
     if result is not None:
         raise HTTPException(status_code=404, detail="Existing Plan ID Data")
 
-    # 2. input plan
+    # 2. set background color
+    params.background_color = "#{:02x}{:02x}{:02x}".format(
+        random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
+    
+    # 3. input plan
     result = await plan_dao.create(params)
 
-    # 3. return at success
+    # 4. return at success
     return result
 
 # output plan data
@@ -51,8 +56,13 @@ async def erase(params):
     if result is None:
         raise HTTPException(status_code=404, detail="No Existing Plan Data")
     
-    # 2. erase plan
+    # 2. delete linked bom datas
+    bom = await bom_dao.read_by_plan(params.id)
+    if bom is not None:
+        await bom_dao.delete(bom)
+
+    # 3. erase plan
     await plan_dao.delete(result)
 
-    # 3. return at success
+    # 4. return at success
     return result

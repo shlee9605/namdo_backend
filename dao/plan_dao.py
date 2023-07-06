@@ -17,7 +17,11 @@ async def create(params):
 # Read ID Plan Data
 async def read(params):
     # 1. Read Plan Data
-    result = postgresql.session.query(Plan).filter(Plan.id==params).first()
+    result = postgresql.session.query(
+        Plan
+    ).filter(
+        Plan.id==params
+    ).first()
 
     # 2. Return at Success
     return result
@@ -25,7 +29,22 @@ async def read(params):
 # Read Date Plan Data
 async def read_by_date(params):
     # 1. Read Plan Data
-    result = postgresql.session.query(Plan).filter(Plan.madedate==params).order_by(asc(Plan.id)).all()
+    result = postgresql.session.query(
+        Plan.id,
+        Plan.company,
+        Plan.lot,
+        Plan.material_unit,
+        Plan.material_amount,
+        Plan.product_name,
+        Plan.product_unit,
+        Plan.amount,
+        Plan.deadline,
+        Plan.note,
+    ).filter(
+        Plan.madedate==params
+    ).order_by(
+        asc(Plan.id)
+    ).all()
     
     # 2. Return at Success
     return result
@@ -33,7 +52,20 @@ async def read_by_date(params):
 # Read Period Plan Data
 async def read_by_period(params1, params2):
     # 1. Read Plan Data
-    result = postgresql.session.query(Plan).filter(Plan.madedate.between(params1,params2)).order_by(asc(Plan.madedate)).all()
+    result = postgresql.session.query(
+        Plan.id,
+        Plan.state,
+        Plan.company,
+        Plan.product_name,
+        Plan.product_unit,
+        Plan.amount,
+        Plan.process,
+        Plan.background_color,
+    ).filter(
+        Plan.madedate.between(params1,params2)
+    ).order_by(
+        asc(Plan.madedate)
+    ).all()
     
     # 2. Return at Success
     return result
@@ -41,7 +73,6 @@ async def read_by_period(params1, params2):
 # Update Plan Data
 async def update(params, new_params):
     # 1. Update Plan Data
-    params.madedate = new_params.madedate
     params.company = new_params.company
     params.lot = new_params.lot
     params.material_unit = new_params.material_unit
@@ -57,7 +88,7 @@ async def update(params, new_params):
     # 2. Return at Success
     return params
 
-# Update Plan Data
+# Update Plan State Data
 async def update_state(params, new_state):
     # 1. Update Plan Data
     params.state = new_state
