@@ -31,7 +31,7 @@ async def read_color(plan_id, process_name):
         ).filter(
         Gant.plan_id==plan_id,
         Gant.process_name==process_name,
-        ).scalar()
+        ).first()
 
     # 2. Return at Success
     return result

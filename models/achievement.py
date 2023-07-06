@@ -11,4 +11,5 @@ class Achievement(Base):
     gant_id = Column(Integer, nullable=False, index=True)
     accomplishment = Column(Integer, nullable=False)
     workdate = Column(DateTime, nullable=False)
+    note = Column(String, nullable=False)
 

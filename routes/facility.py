@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from models import postgresql
+from libs.authUtil import check_Admin
 from models.facility import Facility
 from services import facility_service
 
@@ -11,7 +12,8 @@ router = APIRouter()
 # create facility data
 @router.post("/facility", status_code=201)
 async def facility_root(request: Request, 
-                        session: Session=Depends(postgresql.connect)):
+                        session: Session=Depends(postgresql.connect),
+                        current_user= Depends(check_Admin)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -47,7 +49,8 @@ async def facility_root(request: Request, param: Optional[str] = None,
 # update facility data
 @router.put("/facility", status_code=200)
 async def facility_root(request: Request, 
-                        session: Session=Depends(postgresql.connect)):
+                        session: Session=Depends(postgresql.connect),
+                        current_user= Depends(check_Admin)):
     # 1. Check Request
     try:
         params = await request.json()
@@ -71,7 +74,8 @@ async def facility_root(request: Request,
 # delete facility data
 @router.delete("/facility", status_code=200)
 async def facility_root(request: Request, param: Optional[str] = None, 
-                        session: Session=Depends(postgresql.connect)):
+                        session: Session=Depends(postgresql.connect),
+                        current_user= Depends(check_Admin)):
     # 1. Check Request
     if param is not None:
         params = param

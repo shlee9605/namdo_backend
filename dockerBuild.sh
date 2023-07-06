@@ -1,4 +1,5 @@
 #!/bin/bash
+#docker push wolfandcamel/namdo_backend:2.0
 DOCKER_USER_NAME=wolfandcamel
 DOCKER_IMAGE_NAME=namdo_backend
 DOCKER_IMAGE_TAG=2.0
