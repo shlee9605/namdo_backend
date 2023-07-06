@@ -1,4 +1,3 @@
-import random
 from fastapi import HTTPException
 
 from dao import gant_dao, facility_dao, bom_dao
@@ -31,7 +30,7 @@ async def output(params):
     for i in datas:
         data = {
             "id": i.id,
-            "title": f"{i.product_unit} - {i.process_name} - {i.amount}",
+            "title": f"{i.product_unit} - {i.process[i.process_order]} - {i.amount}",
             "start_date": i.start_date,
             "end_date": i.end_date,
             "facility_name": i.facility_name,

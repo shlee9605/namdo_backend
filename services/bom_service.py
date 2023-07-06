@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from dao import plan_dao, bom_dao, process_dao
+from dao import plan_dao, bom_dao, gant_dao, process_dao
 
 # input bom data
 async def input(params):
@@ -65,7 +65,7 @@ async def edit(params):
     # 5. return at success
     return result
 
-# # erase bom data
+# erase bom data
 async def erase(params, order):
     # 1. bom plan
     result = await bom_dao.read(params.id)
@@ -76,8 +76,18 @@ async def erase(params, order):
     if order >= len(result.process):
         raise HTTPException(status_code=404, detail="Invalid Order Number")
 
-    # # 3. erase bom
+    # 3. set state
+    if len(result.process) == 1:
+        result.state = "Undone"
+
+    # 4. delete linked gant datas
+    gant = await gant_dao.read_by_bom_process(params.id, order)
+    if gant is not None:
+        for i in gant:
+            await gant_dao.delete(i)
+
+    # 5. erase bom
     await bom_dao.delete_process(result, order)
 
-    # 4. return at success
+    # 6. return at success
     return result
