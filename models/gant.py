@@ -6,11 +6,12 @@ Base = declarative_base(metadata=MetaData(schema="namdo"))
 class Gant(Base):
     __tablename__ = "gant"
 
+    # ID Info
     id = Column(Integer, primary_key=True, index=True)
-    plan_id = Column(Integer, nullable=False)
-    process_name = Column(String, nullable=False)
+    # Basic Info
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     facility_name = Column(String, nullable=False)
-    background_color = Column(String, nullable=False)
-
+    # Linked Data
+    bom_id = Column(Integer, nullable=False)
+    process_order = Column(Integer, nullable=False)

@@ -34,8 +34,8 @@ async def output(params):
     
     # 2. output bom
     result = await bom_dao.read_by_plan(params.plan_id)
-    if result is None:
-        result = await bom_dao.read_by_unit(plan.product_unit)
+    if result is None:  # if none, just return process
+        result = await bom_dao.read_process_by_unit(plan.product_unit)
 
     # 3. return at success
     return result
@@ -45,13 +45,24 @@ async def edit(params):
     # 1. find existing bom data
     result = await bom_dao.read_by_plan(params.plan_id)
 
-    # 2. edit bom
+    # 2. find plan data
+    plan = await plan_dao.read(params.plan_id)
+    if plan is None:
+        raise HTTPException(status_code=404, detail="No Plan Data")
+
+    # 3. update plan state(Editting, if Plan State is Done)
+    if params.state=="Done":
+        await plan_dao.update_state(plan, "Editting")
+    else:
+        await plan_dao.update_state(plan, "Undone")
+
+    # 4. edit bom
     if result is None:  # if no existing data, add new data
         result = await bom_dao.create(params)
     else:               # if exists, update old data
         await bom_dao.update(result, params)
     
-    # 3. return at success
+    # 5. return at success
     return result
 
 # # erase bom data
