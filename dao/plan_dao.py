@@ -59,7 +59,6 @@ async def read_by_period(params1, params2):
         Plan.product_name,
         Plan.product_unit,
         Plan.amount,
-        Plan.process,
         Plan.background_color,
     ).filter(
         Plan.madedate.between(params1,params2)

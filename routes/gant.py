@@ -17,29 +17,23 @@ async def gant_create(request: Request,
         params = await request.json()
 
         params = Gant(
-            # id = params.get('id'),
-            plan_id = int(params['plan_id']),
-            process_name = params['process_name'],
+            bom_id = int(params['bom_id']),
+            process_order = int(params['process_order']),
             start_date = params['start_date'],
             end_date = params['end_date'],
             facility_name = params['facility_name'],
-            # background_color = params['background_color'],
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
-    if params.plan_id=="":
-        raise HTTPException(status_code=400, detail="Bad Request(plan_id)")
-    if params.process_name=="":
-        raise HTTPException(status_code=400, detail="Bad Request(process_name)")
-    if params.start_date=="":
-        raise HTTPException(status_code=400, detail="Bad Request(start_date)")
-    if params.end_date=="":
-        raise HTTPException(status_code=400, detail="Bad Request(end_date)")
     if params.facility_name=="":
         raise HTTPException(status_code=400, detail="Bad Request(facility_name)")
-    # if params.background_color=="":
-    #     raise HTTPException(status_code=400, detail="Bad Request(background_color)")
+    
+    try:
+        params.start_date = datetime.strptime(params.start_date, "%Y-%m-%dT%H:%M:%S")
+        params.end_date = datetime.strptime(params.end_date, "%Y-%m-%dT%H:%M:%S")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     # 2. Execute Business Logic
     response = await gant_service.input(params)

@@ -1,7 +1,7 @@
 import random
 from fastapi import HTTPException
 
-from dao import gant_dao, facility_dao, process_dao, plan_dao
+from dao import gant_dao, facility_dao, bom_dao
 
 # input gant data
 async def input(params):
@@ -10,25 +10,16 @@ async def input(params):
     if result is None:
         raise HTTPException(status_code=404, detail="No Existing Facility Data")
 
-    # process = await process_dao.read(params.process_name)
-    # if process is None:
-    #     raise HTTPException(status_code=404, detail="No Existing Process Data")
-    
-    plan = await plan_dao.read(params.plan_id)
-    if plan is None:
-        raise HTTPException(status_code=404, detail="No Existing Plan Data")
+    bom = await bom_dao.read(params.bom_id)
+    if bom is None:
+        raise HTTPException(status_code=404, detail="No Existing BOM Data")
+    if params.process_order >= len(bom.process):
+        raise HTTPException(status_code=404, detail="No Existing BOM Process Data")
 
-    # 2. set color, if plan_id+process_name exist, set same color
-    background_color = await gant_dao.read_color(params.plan_id, params.process_name)
-    if background_color is not None:
-        params.background_color = background_color[0]
-    else:
-        params.background_color = "#{:02x}{:02x}{:02x}".format(random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
-
-    # 3. input gant
+    # 2. input gant
     result = await gant_dao.create(params)
 
-    # 4. return at success
+    # 3. return at success
     return result
 
 # output gant data

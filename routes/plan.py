@@ -32,15 +32,18 @@ async def plan_root(request: Request,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
-    
-    if params.madedate=="":
-        raise HTTPException(status_code=400, detail="Bad Request(madedate)")
+
     if params.company=="":
         raise HTTPException(status_code=400, detail="Bad Request(company)")
     if params.product_name=="":
         raise HTTPException(status_code=400, detail="Bad Request(product_name)")
     if params.product_unit=="":
         raise HTTPException(status_code=400, detail="Bad Request(product_unit)")
+
+    try:
+        params.madedate = datetime.strptime(params.madedate, "%Y%m%d")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: madedate {str(e)}")
 
     # 2. Execute Business Logic
     response = await plan_service.input(params)
@@ -89,10 +92,7 @@ async def plan_root(start_date, end_date, request: Request,
 async def plan_root(request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
-    # 1. Check Request
-    if id is None:
-        raise HTTPException(status_code=400, detail="Bad Request(id)")
-        
+    # 1. Check Request       
     try:
         params = await request.json()
 

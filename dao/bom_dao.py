@@ -34,11 +34,11 @@ async def read_by_plan(params):
     # 2. Return at Success
     return result
 
-# Read BOM Data by unit
-async def read_by_unit(params):
+# Read BOM Process Data by Product Unit
+async def read_process_by_unit(params):
     # 1. Read BOM Data
     result = postgresql.session.query(
-        BOM
+        BOM.process
     ).join(
         Plan, Plan.id == BOM.plan_id
     ).filter(
