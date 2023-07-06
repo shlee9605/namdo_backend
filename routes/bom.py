@@ -1,45 +1,46 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
-from typing import Optional
 from sqlalchemy.orm import Session
 
 from models import postgresql
 from libs.authUtil import check_Admin
 from models.bom import BOM
+from models.plan import Plan
 from services import bom_service
 
 router = APIRouter()
 
 # create facility data
 @router.post("/bom", status_code=201)
-async def bom_root(request: Request, 
+async def bom_create(request: Request, 
                    session: Session=Depends(postgresql.connect),
                    current_user= Depends(check_Admin)):
     # 1. Check Request
     try:
         params = await request.json()
 
+        state = Plan(
+            bom_state = params['bom_state'],
+        )
+
         params = BOM(
             plan_id = int(params['plan_id']),
-            state = params['state'],
-            process = [params['process_name']],
+            process_name = params['process_name'],
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
-    if params.process=="":
-        raise HTTPException(status_code=400, detail="Bad Request(process)")
-    if params.state!="Editting":
-        raise HTTPException(status_code=400, detail="Bad Request(state)")
+    if state.bom_state!="Editting":
+        raise HTTPException(status_code=400, detail="Bad Request: Can Only Edit in Editting State")
 
     # 2. Execute Business Logic
-    response = await bom_service.input(params)
+    response = await bom_service.input(state, params)
 
     # 3. Response
     return response
 
 # read facility data
 @router.get("/bom/{plan_id}", status_code=200)
-async def bom_root(plan_id, request: Request,
+async def bom_read(plan_id, request: Request,
                    session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
@@ -57,27 +58,36 @@ async def bom_root(plan_id, request: Request,
 
 # update facility data
 @router.put("/bom", status_code=200)
-async def bom_root(request: Request, 
+async def bom_update(request: Request, 
                    session: Session=Depends(postgresql.connect),
                    current_user= Depends(check_Admin)):
     # 1. Check Request
     try:
         params = await request.json()
-        params = BOM(
-            plan_id = int(params['plan_id']),
-            state = params['state'],
-            process = params['process'],
+
+        state = Plan(
+            bom_state = params['bom_state'],
         )
+        plan = BOM(
+            plan_id = int(params['plan_id'])
+        )
+        params = params['process']
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
-    if params.process=="":
-        raise HTTPException(status_code=400, detail="Bad Request(process)")
-    if params.state!="Editting" and params.state!="Done":
-        raise HTTPException(status_code=400, detail="Bad Request(state)")
+    if state.bom_state!="Editting" and state.bom_state!="Done":
+        raise HTTPException(status_code=400, detail="Bad Request: Can't Edit On Undone State")
+
+    if not isinstance(params, list):
+        raise HTTPException(status_code=400, detail="Bad Request: 'process' must be an array")
+
+    for element in params:
+        if not isinstance(element, int):
+            raise HTTPException(status_code=400, detail="Bad Request: 'process' array must contain integers only")
 
     # 2. Execute Business Logic
-    response = await bom_service.edit(params)
+    response = await bom_service.edit(state, plan.plan_id, params)
 
     # 3. Response
     return response
@@ -85,12 +95,15 @@ async def bom_root(request: Request,
 
 # delete facility data
 @router.delete("/bom/{id}", status_code=200)
-async def bom_root(id, request: Request, 
-                   order: int, 
+async def bom_delete(id, request: Request, 
+                   bom_state: str,
                    session: Session=Depends(postgresql.connect),
                    current_user= Depends(check_Admin)):
     # 1. Check Request
     try:
+        state = Plan(
+            bom_state = bom_state,
+        )
         params = BOM(
             id = id,
         )
@@ -98,8 +111,11 @@ async def bom_root(id, request: Request,
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
+    if state.bom_state!="Editting":
+        raise HTTPException(status_code=400, detail="Bad Request: Can Only Edit in Editting State")
+
     # 2. Execute Business Logic
-    response = await bom_service.erase(params, order)
+    response = await bom_service.erase(state, params)
 
     # 3. Response
     return response
