@@ -81,6 +81,9 @@ async def plan_root(start_date, end_date, request: Request,
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
+    if start_date > end_date:
+        raise HTTPException(status_code=400, detail="Bad Request: start_date > end_date")
+
     # 2. Execute Business Logic
     response = await plan_service.output_detail(start_date, end_date)
     

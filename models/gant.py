@@ -13,5 +13,5 @@ class Gant(Base):
     end_date = Column(DateTime, nullable=False)
     facility_name = Column(String, nullable=False)
     # Linked Data
-    bom_id = Column(Integer, nullable=False)
+    bom_id = Column(Integer, nullable=False, index=True)
     process_order = Column(Integer, nullable=False)

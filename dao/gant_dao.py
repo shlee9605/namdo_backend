@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from models import postgresql
 from models.gant import Gant
+from models.bom import BOM
 from models.plan import Plan
 
 # Create Gant Data
@@ -23,15 +24,15 @@ async def read(params):
     # 2. Return at Success
     return result
 
-# Read Color Gant Data
-async def read_color(plan_id, process_name):
+# Read Gant Data by BOM Process
+async def read_by_bom_process(params, order):
     # 1. Read Gant Data
     result = postgresql.session.query(
-        Gant.background_color
-        ).filter(
-        Gant.plan_id==plan_id,
-        Gant.process_name==process_name,
-        ).first()
+        Gant
+    ).filter(
+        Gant.bom_id==params,
+        Gant.process_order==order,
+    ).all()
 
     # 2. Return at Success
     return result
@@ -40,21 +41,23 @@ async def read_color(plan_id, process_name):
 async def read_by_date(params):
     # 1. Read Gant Data
     result = postgresql.session.query(
-        Gant
-        ).join(
-        Plan, Gant.plan_id==Plan.id
-        ).with_entities(
-        Gant.id, 
-        Plan.product_unit, 
-        Gant.process_name, 
-        Plan.amount,
-        Gant.start_date, 
-        Gant.end_date, 
+        Gant.id,
+        Gant.start_date,
+        Gant.end_date,
         Gant.facility_name,
-        Gant.background_color
-        ).filter(
+        Gant.process_order,
+        BOM.process,
+        Plan.product_unit,
+        Plan.amount,
+        Plan.background_color,
+    ).join(
+        BOM, BOM.id == Gant.bom_id,
+    ).join(
+        Plan, Plan.id == BOM.plan_id,
+    ).filter(
         and_(Gant.start_date<=(params + timedelta(days=30)), 
-             Gant.end_date>=params)).all()
+             Gant.end_date>=params)
+    ).all()
     
     # 2. Return at Success
     return result
