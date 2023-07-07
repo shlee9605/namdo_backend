@@ -1,4 +1,4 @@
-from sqlalchemy import asc, desc, func
+from sqlalchemy import asc, desc
 
 from models import postgresql
 from models.bom import BOM
@@ -23,7 +23,7 @@ async def read(params):
     return result
 
 # Read BOM Data by plan
-async def read_by_plan(params):
+async def read_all_by_plan(params):
     # 1. Read BOM Data
     result = postgresql.session.query(
         BOM,
@@ -36,7 +36,7 @@ async def read_by_plan(params):
     # 2. Return at Success
     return result
 
-# Read BOM Process Data by Product Unit
+# Read BOM Plan ID by Product Unit
 async def read_plan_id_by_unit(params):
     # 1. Read BOM Data
     result = postgresql.session.query(
@@ -52,16 +52,32 @@ async def read_plan_id_by_unit(params):
     # 2. Return at Success
     return result
 
-# Read BOM Data by plan
-async def read_length_by_plan(plan_id, params):
+# Read All BOM ID by BOM ID
+async def read_all_bom_id_by_plan(params):
     # 1. Read BOM Data
     result = postgresql.session.query(
-        func.count(BOM.id)
+        BOM.id
+    ).join(
+        Plan, Plan.id == BOM.plan_id
     ).filter(
-        BOM.plan_id == plan_id,
-        BOM.id.in_(params)
-    ).scalar()
+        BOM.plan_id == params
+    ).all()
     
+    # 2. Return at Success
+    return result
+
+# Read ID BOM State Data
+async def read_bom_state(params):
+    # 1. Read BOM Data
+    result = postgresql.session.query(
+        Plan.id,
+        Plan.bom_state,
+    ).join(
+        BOM, BOM.plan_id == Plan.id,
+    ).filter(
+        BOM.id==params
+    ).first()
+
     # 2. Return at Success
     return result
 

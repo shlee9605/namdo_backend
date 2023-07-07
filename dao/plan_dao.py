@@ -27,7 +27,7 @@ async def read(params):
     return result
 
 # Read Date Plan Data
-async def read_by_date(params):
+async def read_all_by_date(params):
     # 1. Read Plan Data
     result = postgresql.session.query(
         Plan.id,
@@ -50,7 +50,7 @@ async def read_by_date(params):
     return result
 
 # Read Period Plan Data
-async def read_by_period(params1, params2):
+async def read_all_by_period(params1, params2):
     # 1. Read Plan Data
     result = postgresql.session.query(
         Plan.id,

@@ -1,4 +1,4 @@
-from sqlalchemy import and_
+from sqlalchemy import and_, asc, desc
 from datetime import timedelta
 
 from models import postgresql
@@ -19,34 +19,32 @@ async def create(params):
 # Read ID Gant Data
 async def read(params):
     # 1. Read Gant Data
-    result = postgresql.session.query(Gant).filter(Gant.id==params).one_or_none()
+    result = postgresql.session.query(Gant).filter(Gant.id==params).first()
 
     # 2. Return at Success
     return result
 
-# Read Gant Data by BOM Process
-async def read_by_bom_process(params, order):
+# Read Gant Data by BOM
+async def read_all_by_bom(params):
     # 1. Read Gant Data
     result = postgresql.session.query(
         Gant
     ).filter(
-        Gant.bom_id==params,
-        Gant.process_order==order,
+        Gant.bom_id==params
     ).all()
 
     # 2. Return at Success
     return result
 
 # Read Date Gant Data
-async def read_by_date(params):
+async def read_all_by_date(params):
     # 1. Read Gant Data
     result = postgresql.session.query(
         Gant.id,
         Gant.start_date,
         Gant.end_date,
         Gant.facility_name,
-        Gant.process_order,
-        BOM.process,
+        BOM.process_name,
         Plan.product_unit,
         Plan.amount,
         Plan.background_color,
@@ -57,6 +55,27 @@ async def read_by_date(params):
     ).filter(
         and_(Gant.start_date<=(params + timedelta(days=30)), 
              Gant.end_date>=params)
+    ).order_by(
+        asc(Gant.start_date),
+        asc(Gant.end_date),
+    ).all()
+    
+    # 2. Return at Success
+    return result
+
+# Read All BOM ID by BOM ID
+async def read_all_bom_id_by_plan(params):
+    # 1. Read BOM Data
+    result = postgresql.session.query(
+        BOM.plan_id,
+        Gant.bom_id,
+    ).join(
+        Gant, BOM.id == Gant.bom_id
+    ).group_by(
+        BOM.plan_id,
+        Gant.bom_id,
+    ).filter(
+        BOM.plan_id == params
     ).all()
     
     # 2. Return at Success
