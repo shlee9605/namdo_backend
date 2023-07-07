@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 
 from models.bom import BOM
+from services import gant_service
 from dao import plan_dao, bom_dao, gant_dao, process_dao
 
 # input bom data
@@ -18,7 +19,7 @@ async def input(state, params):
     await plan_dao.update_bom_state(plan, state)
 
     # 3. determine order
-    bom = await bom_dao.read_by_plan(params.plan_id)
+    bom = await bom_dao.read_all_by_plan(params.plan_id)
     params.process_order = len(bom)
 
     # 4. input bom
@@ -36,7 +37,7 @@ async def output(params):
         raise HTTPException(status_code=404, detail="No Linked Plan Data")
     
     # 2. output bom
-    result = await bom_dao.read_by_plan(params.plan_id)
+    result = await bom_dao.read_all_by_plan(params.plan_id)
 
     if len(result)==0:  # if none, create bom from recent product unit
         bom = await bom_dao.read_plan_id_by_unit(plan.product_unit)
@@ -44,7 +45,7 @@ async def output(params):
         if bom is None: # if no recent data exists, return no data
             return []
 
-        process = await bom_dao.read_by_plan(bom.plan_id)
+        process = await bom_dao.read_all_by_plan(bom.plan_id)
 
         for i in process:   # create bom datas from recent product unit
             new_bom = BOM(
@@ -54,7 +55,7 @@ async def output(params):
             )
             await bom_dao.create(new_bom)
     
-        result = await bom_dao.read_by_plan(params.plan_id)
+        result = await bom_dao.read_all_by_plan(params.plan_id)
 
     # 3. return at success
     return result
@@ -62,7 +63,7 @@ async def output(params):
 # edit bom data
 async def edit(state, plan_id, params):
     # 1. find existing bom data & validate
-    boms = await bom_dao.read_by_plan(plan_id)
+    boms = await bom_dao.read_all_bom_id_by_plan(plan_id)
     
     bom_ids = {bom.id for bom in boms}
     params_set = set(params)
@@ -90,7 +91,7 @@ async def edit(state, plan_id, params):
         await bom_dao.update(result, i)
 
     # 5. return at success
-    result = await bom_dao.read_by_plan(plan_id)
+    result = await bom_dao.read_all_by_plan(plan_id)
     return result
 
 # erase bom data
@@ -105,20 +106,32 @@ async def erase(state, params):
         raise HTTPException(status_code=404, detail="No Linked Plan Data")
 
     # 2. set bom state
-    boms = await bom_dao.read_by_plan(plan.id)
-    print(len(boms))
+    boms = await bom_dao.read_all_by_plan(plan.id)
     if len(boms) == 1:
         state.bom_state="Undone"
         await plan_dao.update_bom_state(plan, state)
 
     # 3. delete linked gant datas
-    # gant = await gant_dao.read_by_bom_process(params.id, order)
-    # if gant is not None:
-    #     for i in gant:
-    #         await gant_dao.delete(i)
+    await gant_service.erase_all_from_bom(params.id)
 
     # 4. erase bom
     await bom_dao.delete(result)
 
     # 5. return at success
     return result
+
+# erase all bom data via plan
+async def erase_all_from_plan(plan_id):
+    # 1. find data
+    boms = await bom_dao.read_all_by_plan(plan_id)
+
+    # 2. return if nothing to erase
+    if len(boms) == 0:
+        return
+    
+    # 3. delete
+    for bom in boms:
+        await gant_service.erase_all_from_bom(bom.id)   # erase gant
+        await bom_dao.delete(bom)                       # erase bom
+
+    return boms

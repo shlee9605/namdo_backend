@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 import random
 
-from dao import plan_dao, bom_dao
+from services import bom_service
+from dao import plan_dao
 
 # input plan data
 async def input(params):
@@ -23,7 +24,7 @@ async def input(params):
 # output plan data
 async def output_admin(params):
     # 1. output plan
-    result = await plan_dao.read_by_date(params)
+    result = await plan_dao.read_all_by_date(params)
 
     # 2. return at success
     return result
@@ -31,7 +32,7 @@ async def output_admin(params):
 # output plan data
 async def output_detail(params1, params2):
     # 1. output plan
-    result = await plan_dao.read_by_period(params1, params2)
+    result = await plan_dao.read_all_by_period(params1, params2)
 
     # 2. return at success
     return result
@@ -57,10 +58,7 @@ async def erase(params):
         raise HTTPException(status_code=404, detail="No Existing Plan Data")
     
     # 2. delete linked bom datas
-    boms = await bom_dao.read_by_plan(params.id)
-    if len(boms) != 0:
-        for i in boms:
-            await bom_dao.delete(i)
+    await bom_service.erase_all_from_plan(params.id)
 
     # 3. erase plan
     await plan_dao.delete(result)

@@ -9,28 +9,39 @@ async def input(params):
     if result is None:
         raise HTTPException(status_code=404, detail="No Existing Facility Data")
 
-    bom = await bom_dao.read(params.bom_id)
-    if bom is None:
+    plan = await bom_dao.read_bom_state(params.bom_id)
+    if plan is None:
         raise HTTPException(status_code=404, detail="No Existing BOM Data")
-    if params.process_order >= len(bom.process):
-        raise HTTPException(status_code=404, detail="No Existing BOM Process Data")
-
-    # 2. input gant
+    if plan.bom_state!="Done":   # bom state must be done before input
+        raise HTTPException(status_code=404, detail="BOM State Not Done")
+    
+    # 2. update plan state
+    bom_ids = await bom_dao.read_all_bom_id_by_plan(plan.id)    # number of total boms
+    plan_bom_ids = {bom_id.id for bom_id in bom_ids}
+    total_bom_number = len(bom_ids)
+    print(total_bom_number)
+ 
+    bom_ids = await gant_dao.read_all_bom_id_by_plan(plan.id)   # number of gant made boms
+    gant_bom_ids = {bom_id.bom_id for bom_id in bom_ids}
+    gant_bom_number = len(bom_ids)
+    print(gant_bom_number)
+    
+    # 3. input gant
     result = await gant_dao.create(params)
 
-    # 3. return at success
+    # 4. return at success
     return result
 
 # output gant data
 async def output(params):
     # 1. output gant
-    datas = await gant_dao.read_by_date(params)
+    datas = await gant_dao.read_all_by_date(params)
     result = []
 
     for i in datas:
         data = {
             "id": i.id,
-            "title": f"{i.product_unit} - {i.process[i.process_order]} - {i.amount}",
+            "title": f"{i.product_unit} - {i.process_name} - {i.amount}",
             "start_date": i.start_date,
             "end_date": i.end_date,
             "facility_name": i.facility_name,
@@ -71,3 +82,18 @@ async def erase(params):
 
     # 3. return at success
     return result
+
+# erase all gant data via bom
+async def erase_all_from_bom(bom_id):
+    # 1. find data
+    gants = await gant_dao.read_all_by_bom(bom_id)
+
+    # 2. return if nothing to erase
+    if len(gants) == 0:
+        return
+    
+    # 3. delete
+    for gant in gants:
+        await gant_dao.delete(gant)
+    return gants
+    

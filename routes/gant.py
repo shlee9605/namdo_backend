@@ -18,7 +18,6 @@ async def gant_create(request: Request,
 
         params = Gant(
             bom_id = int(params['bom_id']),
-            process_order = int(params['process_order']),
             start_date = params['start_date'],
             end_date = params['end_date'],
             facility_name = params['facility_name'],
