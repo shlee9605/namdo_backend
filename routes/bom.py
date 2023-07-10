@@ -62,16 +62,15 @@ async def bom_update(request: Request,
                    session: Session=Depends(postgresql.connect),
                    current_user= Depends(check_Admin)):
     # 1. Check Request
+    params = await request.json()
     try:
-        params = await request.json()
-
         state = Plan(
             bom_state = params['bom_state'],
         )
         plan = BOM(
             plan_id = int(params['plan_id'])
         )
-        params = params['process']
+        params = params['process_list']
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
@@ -80,11 +79,11 @@ async def bom_update(request: Request,
         raise HTTPException(status_code=400, detail="Bad Request: Can't Edit On Undone State")
 
     if not isinstance(params, list):
-        raise HTTPException(status_code=400, detail="Bad Request: 'process' must be an array")
+        raise HTTPException(status_code=400, detail="Bad Request: 'process_list' must be an array")
 
     for element in params:
         if not isinstance(element, int):
-            raise HTTPException(status_code=400, detail="Bad Request: 'process' array must contain integers only")
+            raise HTTPException(status_code=400, detail="Bad Request: 'process_list' array must contain integers only")
 
     # 2. Execute Business Logic
     response = await bom_service.edit(state, plan.plan_id, params)

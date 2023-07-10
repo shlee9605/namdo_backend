@@ -90,6 +90,23 @@ async def plan_detail(start_date, end_date, request: Request,
     # 3. Reponse
     return response
 
+# read Detail plan state data
+@router.get("/planstate/{id}", status_code=200)
+async def plan_detail_state(id, request: Request, 
+                    session: Session=Depends(postgresql.connect)):
+    
+    # 1. Check Request
+    try:
+        params = int(id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    # 2. Execute Business Logic
+    response = await plan_service.output_detail_state(params)
+    
+    # 3. Reponse
+    return response
+
 # update plan data
 @router.put("/plan", status_code=200)
 async def plan_update(request: Request, 

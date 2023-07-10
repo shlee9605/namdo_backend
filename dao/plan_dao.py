@@ -1,4 +1,4 @@
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 
 from models import postgresql
 from models.plan import Plan
@@ -43,7 +43,10 @@ async def read_all_by_date(params):
     ).filter(
         Plan.madedate==params
     ).order_by(
-        asc(Plan.id)
+        asc(Plan.company),
+        asc(Plan.product_name),
+        asc(Plan.product_unit),
+        asc(Plan.amount),
     ).all()
     
     # 2. Return at Success
@@ -64,9 +67,27 @@ async def read_all_by_period(params1, params2):
     ).filter(
         Plan.madedate.between(params1,params2)
     ).order_by(
-        asc(Plan.madedate)
+        asc(Plan.madedate),
+        asc(Plan.company),
+        asc(Plan.product_name),
+        asc(Plan.product_unit),
+        asc(Plan.amount),
     ).all()
     
+    # 2. Return at Success
+    return result
+
+# Read ID Plan State Data
+async def read_state(params):
+    # 1. Read Plan Data
+    result = postgresql.session.query(
+        Plan.id,
+        Plan.state,
+        Plan.bom_state,
+    ).filter(
+        Plan.id==params
+    ).first()
+
     # 2. Return at Success
     return result
 
