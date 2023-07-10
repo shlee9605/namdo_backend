@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from dao import gant_dao, facility_dao, bom_dao
+from dao import gant_dao, facility_dao, bom_dao, plan_dao
 
 # input gant data
 async def input(params):
@@ -9,7 +9,7 @@ async def input(params):
     if result is None:
         raise HTTPException(status_code=404, detail="No Existing Facility Data")
 
-    plan = await bom_dao.read_bom_state(params.bom_id)
+    plan = await bom_dao.read_plan(params.bom_id)
     if plan is None:
         raise HTTPException(status_code=404, detail="No Existing BOM Data")
     if plan.bom_state!="Done":   # bom state must be done before input
@@ -18,13 +18,15 @@ async def input(params):
     # 2. update plan state
     bom_ids = await bom_dao.read_all_bom_id_by_plan(plan.id)    # number of total boms
     plan_bom_ids = {bom_id.id for bom_id in bom_ids}
-    total_bom_number = len(bom_ids)
-    print(total_bom_number)
+    total_bom_number = len(plan_bom_ids)
  
-    bom_ids = await gant_dao.read_all_bom_id_by_plan(plan.id)   # number of gant made boms
+    bom_ids = await gant_dao.read_all_bom_id_by_plan(plan.id)   # number of bom made in gant
     gant_bom_ids = {bom_id.bom_id for bom_id in bom_ids}
-    gant_bom_number = len(bom_ids)
-    print(gant_bom_number)
+    gant_bom_ids.add(params.bom_id)
+    gant_bom_number = len(gant_bom_ids)
+
+    if total_bom_number==gant_bom_number and plan.state == "Editting":
+        await plan_dao.update_state(plan, "Working")
     
     # 3. input gant
     result = await gant_dao.create(params)
@@ -77,6 +79,25 @@ async def erase(params):
     if result is None:
         raise HTTPException(status_code=404, detail="No Existing Gant Data")
     
+    # 2. update plan state
+    plan = await bom_dao.read_plan(result.bom_id)
+    if plan is None:
+        raise HTTPException(status_code=404, detail="No Existing BOM Data")
+    if plan.bom_state!="Done":   # bom state must be done before input
+        raise HTTPException(status_code=404, detail="BOM State Not Done")
+
+    bom_ids = await bom_dao.read_all_bom_id_by_plan(plan.id)    # number of total boms
+    plan_bom_ids = {bom_id.id for bom_id in bom_ids}
+    total_bom_number = len(plan_bom_ids)
+ 
+    bom_ids = await gant_dao.read_all_bom_id_by_plan(plan.id)   # number of bom made in gant
+    gant_bom_ids = {bom_id.bom_id for bom_id in bom_ids}
+    gant_bom_ids.remove(result.bom_id)
+    gant_bom_number = len(gant_bom_ids)
+
+    if total_bom_number>gant_bom_number and plan.state == "Working":
+        await plan_dao.update_state(plan, "Editting")
+
     # 2. erase gant
     await gant_dao.delete(result)
 

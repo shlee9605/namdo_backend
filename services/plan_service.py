@@ -37,6 +37,15 @@ async def output_detail(params1, params2):
     # 2. return at success
     return result
 
+# output plan data
+async def output_detail_state(params):
+    # 1. output plan
+    result = params
+    result = await plan_dao.read_state(params)
+
+    # 2. return at success
+    return result
+
 # edit plan data
 async def edit(params):
     # 1. find data

@@ -14,10 +14,24 @@ async def create(params):
     # 2. Return at Success
     return params
 
-# Read ID BOM Data
+# Read BOM Data by id
 async def read(params):
     # 1. Read BOM Data
     result = postgresql.session.query(BOM).filter(BOM.id==params).first()
+
+    # 2. Return at Success
+    return result
+
+# Read Plan Data by id
+async def read_plan(params):
+    # 1. Read BOM Data
+    result = postgresql.session.query(
+        Plan
+    ).join(
+        BOM, BOM.plan_id==Plan.id
+    ).filter(
+        BOM.id==params
+    ).first()
 
     # 2. Return at Success
     return result
@@ -36,7 +50,7 @@ async def read_all_by_plan(params):
     # 2. Return at Success
     return result
 
-# Read BOM Plan ID by Product Unit
+# Read BOM Plan ID by Product Unit(BOM data must exist)
 async def read_plan_id_by_unit(params):
     # 1. Read BOM Data
     result = postgresql.session.query(
@@ -63,21 +77,6 @@ async def read_all_bom_id_by_plan(params):
         BOM.plan_id == params
     ).all()
     
-    # 2. Return at Success
-    return result
-
-# Read ID BOM State Data
-async def read_bom_state(params):
-    # 1. Read BOM Data
-    result = postgresql.session.query(
-        Plan.id,
-        Plan.bom_state,
-    ).join(
-        BOM, BOM.plan_id == Plan.id,
-    ).filter(
-        BOM.id==params
-    ).first()
-
     # 2. Return at Success
     return result
 
