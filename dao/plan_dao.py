@@ -2,6 +2,7 @@ from sqlalchemy import asc, desc
 
 from models import postgresql
 from models.plan import Plan
+from models.bom import BOM
 from models.gant import Gant
 
 # Create Plan Data
@@ -14,13 +15,43 @@ async def create(params):
     # 2. Return at Success
     return params
 
-# Read ID Plan Data
+# Read Plan Data by ID
 async def read(params):
     # 1. Read Plan Data
     result = postgresql.session.query(
         Plan
     ).filter(
         Plan.id==params
+    ).first()
+
+    # 2. Return at Success
+    return result
+
+# Read Plan Data by BOM ID
+async def read_by_bom_id(params):
+    # 1. Read BOM Data
+    result = postgresql.session.query(
+        Plan
+    ).join(
+        BOM, BOM.plan_id==Plan.id
+    ).filter(
+        BOM.id==params
+    ).first()
+
+    # 2. Return at Success
+    return result
+
+# Read Plan Data by Gant ID
+async def read_by_gant_id(params):
+    # 1. Read Gant Data
+    result = postgresql.session.query(
+        Plan
+    ).join(
+        BOM, BOM.plan_id == Plan.id,
+    ).join(
+        Gant, Gant.bom_id == BOM.id,
+    ).filter(
+        Gant.id==params
     ).first()
 
     # 2. Return at Success

@@ -1,4 +1,4 @@
-from sqlalchemy import asc, desc
+from sqlalchemy import asc, desc, and_
 
 from models import postgresql
 from models.bom import BOM
@@ -18,20 +18,6 @@ async def create(params):
 async def read(params):
     # 1. Read BOM Data
     result = postgresql.session.query(BOM).filter(BOM.id==params).first()
-
-    # 2. Return at Success
-    return result
-
-# Read Plan Data by id
-async def read_plan(params):
-    # 1. Read BOM Data
-    result = postgresql.session.query(
-        Plan
-    ).join(
-        BOM, BOM.plan_id==Plan.id
-    ).filter(
-        BOM.id==params
-    ).first()
 
     # 2. Return at Success
     return result
@@ -104,7 +90,23 @@ async def update_process(params, new_params):
 async def delete(params):
     # 1. Delete BOM Data
     postgresql.session.delete(params)
+
+    # 2. Re-Order BOM Data
+    result = postgresql.session.query(
+        BOM
+    ).filter(
+        and_(
+            BOM.plan_id == params.plan_id,
+            BOM.process_order > params.process_order
+        )
+    ).order_by(
+        asc(BOM.process_order)
+    ).all()
+
+    for order in result:
+        order.process_order -= 1
+
     postgresql.session.commit()
 
-    # 2. Return at Success
-    return params
+    # 3. Return at Success
+    return result
