@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
+from datetime import datetime
 from typing import Optional
 from sqlalchemy.orm import Session
 
@@ -15,17 +16,17 @@ router = APIRouter()
 
 # create achievement data
 @router.post("/achievement", status_code=201)
-async def achievement_root(request: Request, 
+async def achievement_create(request: Request, 
                            session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = await request.json()
 
         params = Achievement(
-            # id = params.get('id'),
             user_name = params['user_name'],
             gant_id = params['gant_id'],
             accomplishment = int(params['accomplishment']),
+            note = params.get('note'),
             # workdate = params['workdate'],
         )
     except Exception as e:
@@ -46,12 +47,12 @@ async def achievement_root(request: Request,
 
 # read achievement data
 @router.get("/achievement/detail/{gant_id}", status_code=200)
-async def achievement_root(gant_id, request: Request, 
+async def achievement_read_detail(gant_id, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     # 1. Check Request
     try:
         params = Achievement(
-            gant_id = gant_id,
+            gant_id = int(gant_id),
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
@@ -69,7 +70,7 @@ async def achievement_read_detail_accomplishment(gant_id, request: Request,
     # 1. Check Request
     try:
         params = Achievement(
-            gant_id = gant_id,
+            gant_id = int(gant_id),
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
@@ -128,9 +129,9 @@ async def achievement_read_dashboard(request: Request,
     # 3. Reponse
     return response
 
-# update achievement data
-@router.put("/achievement/detail/accomplishment", status_code=200)
-async def achievement_update_detail(request: Request, 
+# update achievement accomplishment data
+@router.put("/achievement/accomplishment", status_code=200)
+async def achievement_update_accomplishment(request: Request, 
                     session: Session=Depends(postgresql.connect),
                     current_user = Depends(current_User)):
     # 1. Check Request      
@@ -145,14 +146,14 @@ async def achievement_update_detail(request: Request,
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
 
     # 2. Execute Business Logic
-    response = await achievement_service.edit(params, current_user, "detail_accomplishment")
+    response = await achievement_service.edit_accomplishment(params, current_user)
 
     # 3. Response
     return response
 
-# update achievement data
-@router.put("/achievement/detail/workdate", status_code=200)
-async def achievement_update_detail(request: Request, 
+# update achievement workdate data
+@router.put("/achievement/workdate", status_code=200)
+async def achievement_update_workdate(request: Request, 
                     session: Session=Depends(postgresql.connect),
                     current_user = Depends(current_User)):
     # 1. Check Request      
@@ -166,37 +167,13 @@ async def achievement_update_detail(request: Request,
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
     
-    if params.workdate=="":
-        raise HTTPException(status_code=400, detail="Bad Request(workdate)")
-
-    # 2. Execute Business Logic
-    response = await achievement_service.edit(params, current_user, "detail_workdate")
-
-    # 3. Response
-    return response
-
-# update master achievement data
-@router.put("/achievement/master", status_code=200)
-async def achievement_update_master(request: Request, 
-                    session: Session=Depends(postgresql.connect),
-                    current_user = Depends(check_Master)):
-    # 1. Check Request      
     try:
-        params = await request.json()
-
-        params = Achievement(
-            id = int(params['id']),
-            accomplishment = int(params['accomplishment']),
-            workdate = params['workdate'],
-        )
+        params.workdate = datetime.strptime(params.workdate, "%Y-%m-%dT%H:%M:%S")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
-    
-    if params.workdate=="":
-        raise HTTPException(status_code=400, detail="Bad Request(workdate)")
 
     # 2. Execute Business Logic
-    response = await achievement_service.edit(params, current_user, "master")
+    response = await achievement_service.edit_workdate(params, current_user)
 
     # 3. Response
     return response
@@ -209,7 +186,7 @@ async def achievement_delete(id, request: Request,
     # 1. Check Request
     try:
         params = Achievement(
-            id = id,
+            id = int(id),
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")

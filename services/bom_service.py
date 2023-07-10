@@ -15,8 +15,9 @@ async def input(state, params):
     if plan is None:
         raise HTTPException(status_code=404, detail="No Plan Data")
 
-    # 2. update bom state
+    # 2. update bom&plan state
     await plan_dao.update_bom_state(plan, state)
+    await plan_dao.update_state(plan, "Undone")
 
     # 3. determine order
     bom = await bom_dao.read_all_by_plan(params.plan_id)
@@ -27,7 +28,6 @@ async def input(state, params):
     
     # 5. return at success
     return result
-
 
 # output bom data
 async def output(params):
@@ -105,11 +105,15 @@ async def erase(state, params):
     if plan is None:
         raise HTTPException(status_code=404, detail="No Linked Plan Data")
 
-    # 2. set bom state
+    # 2. set bom&plan state
     boms = await bom_dao.read_all_by_plan(plan.id)
-    if len(boms) == 1:
+    if len(boms) == 1:      # if BOM becomse none,
         state.bom_state="Undone"
         await plan_dao.update_bom_state(plan, state)
+    else:                   # else,
+        state.bom_state="Editting"
+        await plan_dao.update_bom_state(plan, state)
+    await plan_dao.update_state(plan, "Undone")
 
     # 3. delete linked gant datas
     await gant_service.erase_all_from_bom(params.id)

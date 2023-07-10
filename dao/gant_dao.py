@@ -16,7 +16,7 @@ async def create(params):
     # 2. Return at Success
     return params
 
-# Read ID Gant Data
+# Read Gant Data by ID
 async def read(params):
     # 1. Read Gant Data
     result = postgresql.session.query(Gant).filter(Gant.id==params).first()
@@ -67,13 +67,9 @@ async def read_all_by_date(params):
 async def read_all_bom_id_by_plan(params):
     # 1. Read BOM Data
     result = postgresql.session.query(
-        BOM.plan_id,
-        Gant.bom_id,
+        BOM.id,
     ).join(
         Gant, BOM.id == Gant.bom_id
-    ).group_by(
-        BOM.plan_id,
-        Gant.bom_id,
     ).filter(
         BOM.plan_id == params
     ).all()

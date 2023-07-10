@@ -1,8 +1,9 @@
-from sqlalchemy import func, asc, desc, and_, case, Integer
+from sqlalchemy import func, asc, desc
 
 from models import postgresql
 from models.achievement import Achievement
 from models.gant import Gant
+from models.bom import BOM
 from models.plan import Plan
 
 # Create Achievement Data
@@ -15,16 +16,71 @@ async def create(params):
     # 2. Return at Success
     return params
 
-# Read ID Achievement Data
+# Read Achievement Data by ID
 async def read(params):
     # 1. Read Achievement Data
-    result = postgresql.session.query(Achievement).filter(Achievement.id==params).one_or_none()
+    result = postgresql.session.query(
+        Achievement
+    ).filter(
+        Achievement.id==params
+    ).first()
+
+    # 2. Return at Success
+    return result
+
+# Read BOM Accomplishment
+async def read_bom_accomplishment(params):
+    # 1. Read BOM Accomplishment Data
+    result = postgresql.session.query(
+        BOM.id,
+        func.sum(Achievement.accomplishment).label('accomplishment'),
+        Plan.amount,
+        # BOM.process_name,
+    ).join(
+        Gant, Gant.id == Achievement.gant_id,
+    ).join(
+        BOM, BOM.id == Gant.bom_id,
+    ).join(
+        Plan, Plan.id == BOM.plan_id,
+    ).filter(
+        BOM.id == params,
+    ).group_by(
+        BOM.id,
+        Plan.id,
+    ).first()
+
+    # 2. Return at Success
+    return result
+
+# Read Plan Accomplishment(minimum from total plan accomplishment)
+async def read_plan_accomplishment(params):
+    # 1. Read Plan Accomplishment Data
+    result = postgresql.session.query(
+        BOM.id,
+        func.sum(Achievement.accomplishment).label('accomplishment'),
+        Plan.amount,
+        # BOM.process_name,
+        # BOM.process_order,
+    ).join(
+        Gant, Gant.id == Achievement.gant_id,
+    ).join(
+        BOM, BOM.id == Gant.bom_id,
+    ).join(
+        Plan, Plan.id == BOM.plan_id,
+    ).filter(
+        Plan.id == params,
+    ).group_by(
+        BOM.id,
+        Plan.id,
+    ).order_by(
+        desc(BOM.process_order),
+    ).first()
 
     # 2. Return at Success
     return result
 
 # Read Achievement Data by gant_id
-async def read_detail_by_gantid(params):
+async def read_all_by_gant(params):
     # 1. Read Achievement Data
     result = postgresql.session.query(
         Achievement
@@ -38,25 +94,23 @@ async def read_detail_by_gantid(params):
     return result
 
 # Read Achievement Data by user_name
-async def read_master_by_username(params):
+async def read_all_by_user_name(params):
     # 1. Read Achievement Data
     result = postgresql.session.query(
-        Achievement
-    ).join(
-        Gant, Gant.id == Achievement.gant_id
-    ).join(
-        Plan, Plan.id == Gant.plan_id
-    ).with_entities(
         Achievement.id,
-        # Achievement.user_name,
         Achievement.accomplishment,
         Achievement.workdate,
-        Gant.process_name,
         Gant.facility_name,
-        # Plan.amount,
+        BOM.process_name,
         Plan.product_unit,
         Plan.company,
         Plan.product_name,
+    ).join(
+        Gant, Gant.id == Achievement.gant_id
+    ).join(
+        BOM, BOM.id == Gant.bom_id,
+    ).join(
+        Plan, Plan.id == BOM.plan_id,
     ).filter(
         Achievement.user_name==params
     ).order_by(
@@ -265,31 +319,9 @@ async def read_dashboard_facility_date(params):
     # 2. Return at Success
     return result
 
-
-# Read Accomplishment Group By Process_Name By Plan
-async def read_process_accomplishment(params):
-    result = postgresql.session.query(
-        Gant.process_name,
-        func.sum(Achievement.accomplishment).label('accomplishment'),
-        (func.cast(Plan.amount, Integer) - func.sum(Achievement.accomplishment)).label('difference'),    
-        # Plan.amount.label('amount'),
-        # case([(func.cast(Plan.amount, Integer) > func.sum(Achievement.accomplishment), 'Working')], else_='Done').label('state')
-    ).join(
-        Gant, Achievement.gant_id == Gant.id
-    ).join(
-        Plan, Gant.plan_id == Plan.id
-    ).filter(
-        Gant.plan_id == params
-    ).group_by(
-        Gant.process_name,
-        Plan.amount
-    ).all()
-
-    return result
-
-# Update Achievement(detail) accomplishment Data
-async def update_detail_accomplishment(params, new_params):
-    # 1. Update Achievement Data
+# Update Achievement accomplishment Data
+async def update_accomplishment(params, new_params):
+    # 1. Update Achievement accomplishment Data
     params.accomplishment = new_params.accomplishment
     postgresql.session.commit()
     postgresql.session.refresh(params)
@@ -297,20 +329,9 @@ async def update_detail_accomplishment(params, new_params):
     # 2. Return at Success
     return params
 
-# Update Achievement(detail) workdate Data
-async def update_detail_workdate(params, new_params):
-    # 1. Update Achievement Data
-    params.workdate = new_params.workdate
-    postgresql.session.commit()
-    postgresql.session.refresh(params)
-
-    # 2. Return at Success
-    return params
-
-# Update Achievement(master) Data
-async def update(params, new_params):
-    # 1. Update Achievement Data
-    params.accomplishment = new_params.accomplishment
+# Update Achievement workdate Data
+async def update_workdate(params, new_params):
+    # 1. Update Achievement workdate Data
     params.workdate = new_params.workdate
     postgresql.session.commit()
     postgresql.session.refresh(params)
