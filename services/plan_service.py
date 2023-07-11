@@ -6,19 +6,14 @@ from dao import plan_dao
 
 # input plan data
 async def input(params):
-    # 1. check existing data
-    result = await plan_dao.read(params.id)
-    if result is not None:
-        raise HTTPException(status_code=404, detail="Existing Plan ID Data")
-
-    # 2. set background color
+    # 1. set background color
     params.background_color = "#{:02x}{:02x}{:02x}".format(
         random.randint(125, 255), random.randint(125, 255), random.randint(125, 255))
     
-    # 3. input plan
+    # 2. input plan
     result = await plan_dao.create(params)
 
-    # 4. return at success
+    # 3. return at success
     return result
 
 # output plan data

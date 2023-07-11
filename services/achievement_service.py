@@ -204,3 +204,17 @@ async def erase(params, current_user):
 
     # 6. return at success
     return result
+
+# erase all achievement data via gant
+async def erase_all_from_gant(gant_id):
+    # 1. find data
+    achievements = await achievement_dao.read_all_by_gant(gant_id)
+
+    # 2. return if nothing to erase
+    if len(achievements) == 0:
+        return
+    
+    # 3. delete
+    for achievement in achievements:
+        await achievement_dao.delete(achievement)
+    return achievements

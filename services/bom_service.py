@@ -15,9 +15,8 @@ async def input(state, params):
     if plan is None:
         raise HTTPException(status_code=404, detail="No Plan Data")
 
-    # 2. update bom&plan state
+    # 2. update bom state
     await plan_dao.update_bom_state(plan, state)
-    await plan_dao.update_state(plan, "Undone")
 
     # 3. determine order
     bom = await bom_dao.read_all_by_plan(params.plan_id)
@@ -26,8 +25,19 @@ async def input(state, params):
     # 4. input bom
     result = await bom_dao.create(params)
     
-    # 5. return at success
-    return result
+    # 5. update plan state
+    if plan.bom_state == "Done":
+        await plan_dao.update_state(plan, "Editting")
+    else:
+        await plan_dao.update_state(plan, "Undone")
+
+    # 6. return at success
+    return {
+        "id": result.id,
+        "plan_id": result.plan_id,
+        "process_name": result.process_name,
+        "process_order": result.process_order,
+    }
 
 # output bom data
 async def output(params):
@@ -78,19 +88,19 @@ async def edit(state, plan_id, params):
     if plan is None:
         raise HTTPException(status_code=404, detail="No Linked Plan Data")
 
-    # 3. update plan&bom state(Editting, if Plan State is Done)
+    # 3. update bom state
     await plan_dao.update_bom_state(plan, state)
-    if state.bom_state == "Done":
+
+    # 4. edit bom
+    result = await bom_dao.update(params)
+
+    # 5. update plan state
+    if plan.bom_state == "Done":
         await plan_dao.update_state(plan, "Editting")
     else:
         await plan_dao.update_state(plan, "Undone")
 
-    # 4. edit bom
-    for i, e in enumerate(params):
-        result = await bom_dao.read(e)
-        await bom_dao.update(result, i)
-
-    # 5. return at success
+    # 6. return at success
     result = await bom_dao.read_all_by_plan(plan_id)
     return result
 
@@ -105,24 +115,31 @@ async def erase(state, params):
     if plan is None:
         raise HTTPException(status_code=404, detail="No Linked Plan Data")
 
-    # 2. set bom&plan state
-    boms = await bom_dao.read_all_by_plan(plan.id)
-    if len(boms) == 1:      # if BOM becomse none,
-        state.bom_state="Undone"
-        await plan_dao.update_bom_state(plan, state)
-    else:                   # else,
-        state.bom_state="Editting"
-        await plan_dao.update_bom_state(plan, state)
-    await plan_dao.update_state(plan, "Undone")
-
-    # 3. delete linked gant datas
+    # 2. delete linked gant datas
     await gant_service.erase_all_from_bom(params.id)
 
-    # 4. erase bom
+    # 3. erase bom
     await bom_dao.delete(result)
 
-    # 5. return at success
-    return result
+    # 4. set bom state
+    boms = await bom_dao.read_all_by_plan(plan.id)
+    if len(boms) == 0:      # if BOM becomse none,
+        state.bom_state="Undone"
+    await plan_dao.update_bom_state(plan, state)
+    
+    # 5. set plan state
+    if plan.bom_state == "Done":
+        await plan_dao.update_state(plan, "Editting")
+    else:
+        await plan_dao.update_state(plan, "Undone")
+
+    # 6. return at success
+    return {
+        "id": result.id,
+        "plan_id": result.plan_id,
+        "process_name": result.process_name,
+        "process_order": result.process_order,
+    }
 
 # erase all bom data via plan
 async def erase_all_from_plan(plan_id):
