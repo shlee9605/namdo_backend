@@ -1,13 +1,12 @@
 import os
+import random
 from sqlalchemy import create_engine
 # from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.sql import exists
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import sessionmaker
 
 from models import users, plan, process, facility, bom, gant, achievement
-from libs.hashUtil import hashPassword
-
+from models.testdata import input_test_data, add_test_facility_data, add_test_process_data, add_test_bom_data, add_test_plan_data, add_test_gant_data, add_test_achievement_data
 # Base = declarative_base()
 
 class PostgreSQL:
@@ -44,18 +43,7 @@ class PostgreSQL:
                     raise  # If it's a different error, we need to know about it.
 
         # input test data if not exists
-        test_master = self.session.query(exists().where(users.Users.user_id == "Master")).scalar()
-        if not test_master:
-            Master = users.Users(
-                user_id = "Master",
-                pass_word = hashPassword("Master"),
-                name = "마스터",
-                email = "Master@Master.com",
-                role = "Master"
-            )
-            self.session.add(Master)
-            self.session.commit()
-            self.session.refresh(Master)
+        await input_test_data(self.session)
 
         # close session        
         print("db connected")
@@ -68,13 +56,6 @@ class PostgreSQL:
             yield self.session
         finally:
             self.session.close()
-    
-    # async def connect(self):
-    #     sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-    #     self.session = sessionLocal()
-
-    # async def disconnect(self):
-    #     self.session.close()
 
     async def close(self):
         self.engine.dispose()

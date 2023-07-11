@@ -9,9 +9,13 @@ from models.plan import Plan
 # Create Achievement Data
 async def create(params):
     # 1. Create Achievement Data
-    postgresql.session.add(params)
-    postgresql.session.commit()
-    postgresql.session.refresh(params)
+    try:
+        postgresql.session.add(params)
+        postgresql.session.commit()
+        postgresql.session.refresh(params)
+    except Exception as e:
+        postgresql.session.rollback()
+        raise e
 
     # 2. Return at Success
     return params
@@ -19,11 +23,14 @@ async def create(params):
 # Read Achievement Data by ID
 async def read(params):
     # 1. Read Achievement Data
-    result = postgresql.session.query(
-        Achievement
-    ).filter(
-        Achievement.id==params
-    ).first()
+    try:
+        result = postgresql.session.query(
+            Achievement
+        ).filter(
+            Achievement.id==params
+        ).first()
+    except Exception as e:
+        raise e
 
     # 2. Return at Success
     return result
@@ -31,23 +38,26 @@ async def read(params):
 # Read BOM Accomplishment
 async def read_bom_accomplishment(params):
     # 1. Read BOM Accomplishment Data
-    result = postgresql.session.query(
-        BOM.id,
-        func.sum(Achievement.accomplishment).label('accomplishment'),
-        Plan.amount,
-        # BOM.process_name,
-    ).join(
-        Gant, Gant.id == Achievement.gant_id,
-    ).join(
-        BOM, BOM.id == Gant.bom_id,
-    ).join(
-        Plan, Plan.id == BOM.plan_id,
-    ).filter(
-        BOM.id == params,
-    ).group_by(
-        BOM.id,
-        Plan.id,
-    ).first()
+    try:
+        result = postgresql.session.query(
+            BOM.id,
+            func.sum(Achievement.accomplishment).label('accomplishment'),
+            Plan.amount,
+            # BOM.process_name,
+        ).join(
+            Gant, Gant.id == Achievement.gant_id,
+        ).join(
+            BOM, BOM.id == Gant.bom_id,
+        ).join(
+            Plan, Plan.id == BOM.plan_id,
+        ).filter(
+            BOM.id == params,
+        ).group_by(
+            BOM.id,
+            Plan.id,
+        ).first()
+    except Exception as e:
+        raise e
 
     # 2. Return at Success
     return result
@@ -55,24 +65,27 @@ async def read_bom_accomplishment(params):
 # Read Plan Accomplishment(minimum from total plan accomplishment)
 async def read_plan_accomplishment(params):
     # 1. Read Plan Accomplishment Data
-    result = postgresql.session.query(
-        BOM.id,
-        func.sum(Achievement.accomplishment).label('accomplishment'),
-        Plan.amount,
-    ).join(
-        Gant, Gant.id == Achievement.gant_id,
-    ).join(
-        BOM, BOM.id == Gant.bom_id,
-    ).join(
-        Plan, Plan.id == BOM.plan_id,
-    ).filter(
-        Plan.id == params,
-    ).group_by(
-        BOM.id,
-        Plan.id,
-    ).order_by(
-        desc(BOM.process_order),
-    ).first()
+    try:
+        result = postgresql.session.query(
+            BOM.id,
+            func.sum(Achievement.accomplishment).label('accomplishment'),
+            Plan.amount,
+        ).join(
+            Gant, Gant.id == Achievement.gant_id,
+        ).join(
+            BOM, BOM.id == Gant.bom_id,
+        ).join(
+            Plan, Plan.id == BOM.plan_id,
+        ).filter(
+            Plan.id == params,
+        ).group_by(
+            BOM.id,
+            Plan.id,
+        ).order_by(
+            desc(BOM.process_order),
+        ).first()
+    except Exception as e:
+        raise e
 
     # 2. Return at Success
     return result
@@ -80,13 +93,16 @@ async def read_plan_accomplishment(params):
 # Read Achievement Data by gant_id
 async def read_all_by_gant(params):
     # 1. Read Achievement Data
-    result = postgresql.session.query(
-        Achievement
-    ).filter(
-        Achievement.gant_id==params
-    ).order_by(
-        asc(Achievement.workdate)
-    ).all()
+    try:
+        result = postgresql.session.query(
+            Achievement
+        ).filter(
+            Achievement.gant_id==params
+        ).order_by(
+            asc(Achievement.workdate)
+        ).all()
+    except Exception as e:
+        raise e
 
     # 2. Return at Success
     return result
@@ -94,26 +110,29 @@ async def read_all_by_gant(params):
 # Read Achievement Data by user_name
 async def read_all_by_user_name(params):
     # 1. Read Achievement Data
-    result = postgresql.session.query(
-        Achievement.id,
-        Achievement.accomplishment,
-        Achievement.workdate,
-        Gant.facility_name,
-        BOM.process_name,
-        Plan.product_unit,
-        Plan.company,
-        Plan.product_name,
-    ).join(
-        Gant, Gant.id == Achievement.gant_id
-    ).join(
-        BOM, BOM.id == Gant.bom_id,
-    ).join(
-        Plan, Plan.id == BOM.plan_id,
-    ).filter(
-        Achievement.user_name==params
-    ).order_by(
-        desc(Achievement.workdate)
-    ).all()
+    try:
+        result = postgresql.session.query(
+            Achievement.id,
+            Achievement.accomplishment,
+            Achievement.workdate,
+            Gant.facility_name,
+            BOM.process_name,
+            Plan.product_unit,
+            Plan.company,
+            Plan.product_name,
+        ).join(
+            Gant, Gant.id == Achievement.gant_id
+        ).join(
+            BOM, BOM.id == Gant.bom_id,
+        ).join(
+            Plan, Plan.id == BOM.plan_id,
+        ).filter(
+            Achievement.user_name==params
+        ).order_by(
+            desc(Achievement.workdate)
+        ).all()
+    except Exception as e:
+        raise e
 
     # 2. Return at Success
     return result
@@ -320,9 +339,13 @@ async def read_dashboard_facility_date(params):
 # Update Achievement accomplishment Data
 async def update_accomplishment(params, new_params):
     # 1. Update Achievement accomplishment Data
-    params.accomplishment = new_params.accomplishment
-    postgresql.session.commit()
-    postgresql.session.refresh(params)
+    try:
+        params.accomplishment = new_params.accomplishment
+        postgresql.session.commit()
+        postgresql.session.refresh(params)
+    except Exception as e:
+        postgresql.session.rollback()
+        raise e
 
     # 2. Return at Success
     return params
@@ -330,9 +353,13 @@ async def update_accomplishment(params, new_params):
 # Update Achievement workdate Data
 async def update_workdate(params, new_params):
     # 1. Update Achievement workdate Data
-    params.workdate = new_params.workdate
-    postgresql.session.commit()
-    postgresql.session.refresh(params)
+    try:
+        params.workdate = new_params.workdate
+        postgresql.session.commit()
+        postgresql.session.refresh(params)
+    except Exception as e:
+        postgresql.session.rollback()
+        raise e
 
     # 2. Return at Success
     return params
@@ -340,8 +367,12 @@ async def update_workdate(params, new_params):
 # Delete Achievement Data
 async def delete(params):
     # 1. Delete Achievement Data
-    postgresql.session.delete(params)
-    postgresql.session.commit()
+    try:
+        postgresql.session.delete(params)
+        postgresql.session.commit()
+    except Exception as e:
+        postgresql.session.rollback()
+        raise e
 
     # 2. Return at Success
     return params

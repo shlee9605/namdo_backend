@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 
+from services import achievement_service
 from dao import gant_dao, facility_dao, bom_dao, plan_dao
 
 # input gant data
@@ -92,6 +93,8 @@ async def erase(params):
     if len(total_bom_ids)>len(gant_bom_ids) and plan.state == "Working":
         await plan_dao.update_state(plan, "Editting")
 
+    # 3. delete linked achievement datas##########################
+
     # 3. erase gant
     await gant_dao.delete(result)
 
@@ -109,6 +112,8 @@ async def erase_all_from_bom(bom_id):
 
     # 3. delete
     for gant in gants:
-        await gant_dao.delete(gant)
+        await achievement_service.erase_all_from_gant(gant.id)  # erase achievement
+        await gant_dao.delete(gant)                             # erase gant
+
     return gants
     

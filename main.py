@@ -43,6 +43,5 @@ app.include_router(routes.router)
 
 # app runs
 if __name__ == "__main__":
-    LOGGING_CONFIG["formatters"]["default"]["fmt"] = "%(asctime)s [%(name)s] %(levelprefix)s %(message)s"
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=False)
     # uvicorn.run("main:app", host="0.0.0.0", port=80, reload=True)
