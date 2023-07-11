@@ -13,7 +13,7 @@ async def input(params):
 
     # 2. set background color
     params.background_color = "#{:02x}{:02x}{:02x}".format(
-        random.randint(0, 200), random.randint(0, 200), random.randint(0, 200))
+        random.randint(125, 255), random.randint(125, 255), random.randint(125, 255))
     
     # 3. input plan
     result = await plan_dao.create(params)

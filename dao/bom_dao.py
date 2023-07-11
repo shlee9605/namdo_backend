@@ -1,6 +1,7 @@
 from sqlalchemy import asc, desc, and_
 
 from models import postgresql
+from models.gant import Gant
 from models.bom import BOM
 from models.plan import Plan
 
@@ -18,6 +19,20 @@ async def create(params):
 async def read(params):
     # 1. Read BOM Data
     result = postgresql.session.query(BOM).filter(BOM.id==params).first()
+
+    # 2. Return at Success
+    return result
+
+# Read BOM Data by Gant ID
+async def read_by_gant_id(params):
+    # 1. Read BOM Data
+    result = postgresql.session.query(
+        BOM
+    ).join(
+        Gant, Gant.bom_id == BOM.id,
+    ).filter(
+        Gant.id==params
+    ).first()
 
     # 2. Return at Success
     return result

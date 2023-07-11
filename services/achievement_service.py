@@ -3,58 +3,6 @@ from datetime import datetime
 
 from dao import user_dao, gant_dao, achievement_dao, bom_dao, plan_dao
 
-# output plan state
-async def util_output_achieved_plan(params):
-    # 1. get gant Data
-    gant = await gant_dao.read(params.gant_id)
-    if gant is None:
-        raise HTTPException(status_code=404, detail="No Existing Gant Data")
-    
-    # 2. get plan data
-    plan = await plan_dao.read(gant.plan_id)
-    if plan is None:
-        raise HTTPException(status_code=404, detail="No Linked Plan Data")
-
-    # 3. get process accomplishment
-    states = await achievement_dao.read_process_accomplishment(plan.id)
-    if not states:
-        states = [[gant.process_name, 0, int(plan.amount)]]
-
-    return states, gant, plan
-
-# update plan state
-async def util_edit_achieved_plan(states, gant, plan, origin, new):
-    # 1. define variable
-    done_case = True
-    undone_case = True
-
-    # 2. determine case
-    for i, state in enumerate(states):
-        if state[0] == gant.process_name:
-            # Modify the existing tuple in the list
-            states[i] = (
-                state[0],  # process_name
-                state[1] - origin + new,  # accomplishment
-                state[2] + origin - new,  # difference
-                # state[3],  # amount
-                # 'Done' if state[3] - params.accomplishment <= 0 else 'Working',  # state
-            )
-        
-        if states[i][2] > 0:
-            done_case = False
-        if states[i][1] > 0:
-            undone_case = False
-
-    # 3. update plan state
-    if done_case:
-        await plan_dao.update_state(plan, "Done")
-    elif undone_case:
-        await plan_dao.update_state(plan, "Undone")
-    else:
-        await plan_dao.update_state(plan, "Working")
-
-##########################################################################
-
 # input achievement data
 async def input(params):
     # 1. check data validate
@@ -64,20 +12,20 @@ async def input(params):
     
     plan = await plan_dao.read_by_gant_id(params.gant_id)
     if plan is None:
-        raise HTTPException(status_code=404, detail="No Existing Gant Data")
+        raise HTTPException(status_code=404, detail="No Linked Plan Data")
     
     gant = await gant_dao.read(params.gant_id)
     if gant is None:
-        raise HTTPException(status_code=404, detail="No Existing Gant Data")
+        raise HTTPException(status_code=404, detail="No Linked Gant Data")
 
     # 2. update plan state
     if plan.state == "Working":
         plan_accomplishment = await achievement_dao.read_plan_accomplishment(plan.id)   # 0. bom_id, 1. accomplishment sum, 2. planned amount, 3. process name, 4. process order
         bom_accomplishment = await achievement_dao.read_bom_accomplishment(gant.bom_id)
-        if plan_accomplishment[0] == bom_accomplishment[0]: # if input accomplishmet matches with plan accomplishment, 
+        if plan_accomplishment is not None and bom_accomplishment is not None and plan_accomplishment[0] == bom_accomplishment[0]: # if input accomplishmet matches with plan accomplishment,     
             if bom_accomplishment[1] + params.accomplishment >= plan_accomplishment[2]: # if accomplishmet over planned amount,
                 await plan_dao.update_state(plan, "Done")
-        
+
     # bom에서 edit으로 작성중갔다가 작성완료로 
     # 다시 돌아오면 gant부터 프로세스 체크 후 Done까지 쭉
     
@@ -114,11 +62,10 @@ async def output_detail_accomplishment(params):
         raise HTTPException(status_code=404, detail="No Existing Gant Data")
     
     # 2. find accomplishment
+    result = plan.amount
     accomplishment = await achievement_dao.read_bom_accomplishment(gant.bom_id)
     if accomplishment is not None:
-        result = accomplishment[1]
-    else:
-        result = plan.amount
+        result -= accomplishment[1]
 
     # 3. return at success
     return {
@@ -194,7 +141,7 @@ async def edit_accomplishment(params, current_user):
     if plan.state == "Done" or plan.state == "Working":
         plan_accomplishment = await achievement_dao.read_plan_accomplishment(plan.id)   # 0. bom_id, 1. accomplishment sum, 2. planned amount, 3. process name, 4. process order
         bom_accomplishment = await achievement_dao.read_bom_accomplishment(gant.bom_id)
-        if plan_accomplishment[0] == bom_accomplishment[0]: # if input accomplishmet matches with plan accomplishment, 
+        if plan_accomplishment is not None and bom_accomplishment is not None and plan_accomplishment[0] == bom_accomplishment[0]: # if input accomplishmet matches with plan accomplishment,     
             if bom_accomplishment[1] + params.accomplishment - result.accomplishment < plan_accomplishment[2]: # if accomplishmet over planned amount,
                 await plan_dao.update_state(plan, "Working")
             else:
@@ -248,7 +195,7 @@ async def erase(params, current_user):
     if plan.state == "Done":
         plan_accomplishment = await achievement_dao.read_plan_accomplishment(plan.id)   # 0. bom_id, 1. accomplishment sum, 2. planned amount, 3. process name, 4. process order
         bom_accomplishment = await achievement_dao.read_bom_accomplishment(gant.bom_id)
-        if plan_accomplishment[0] == bom_accomplishment[0]: # if input accomplishmet matches with plan accomplishment, 
+        if plan_accomplishment is not None and bom_accomplishment is not None and plan_accomplishment[0] == bom_accomplishment[0]: # if input accomplishmet matches with plan accomplishment,     
             if bom_accomplishment[1] - result.accomplishment < plan_accomplishment[2]: # if accomplishmet over planned amount,
                 await plan_dao.update_state(plan, "Working")
 

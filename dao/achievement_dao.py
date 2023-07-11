@@ -59,8 +59,6 @@ async def read_plan_accomplishment(params):
         BOM.id,
         func.sum(Achievement.accomplishment).label('accomplishment'),
         Plan.amount,
-        # BOM.process_name,
-        # BOM.process_order,
     ).join(
         Gant, Gant.id == Achievement.gant_id,
     ).join(
