@@ -1,4 +1,4 @@
-from sqlalchemy import func, asc, desc
+from sqlalchemy import func, asc, desc, String
 
 from models import postgresql
 from models.achievement import Achievement
@@ -40,10 +40,7 @@ async def read_bom_accomplishment(params):
     # 1. Read BOM Accomplishment Data
     try:
         result = postgresql.session.query(
-            BOM.id,
             func.sum(Achievement.accomplishment).label('accomplishment'),
-            Plan.amount,
-            # BOM.process_name,
         ).join(
             Gant, Gant.id == Achievement.gant_id,
         ).join(
@@ -54,36 +51,7 @@ async def read_bom_accomplishment(params):
             BOM.id == params,
         ).group_by(
             BOM.id,
-            Plan.id,
-        ).first()
-    except Exception as e:
-        raise e
-
-    # 2. Return at Success
-    return result
-
-# Read Plan Accomplishment(minimum from total plan accomplishment)
-async def read_plan_accomplishment(params):
-    # 1. Read Plan Accomplishment Data
-    try:
-        result = postgresql.session.query(
-            BOM.id,
-            func.sum(Achievement.accomplishment).label('accomplishment'),
-            Plan.amount,
-        ).join(
-            Gant, Gant.id == Achievement.gant_id,
-        ).join(
-            BOM, BOM.id == Gant.bom_id,
-        ).join(
-            Plan, Plan.id == BOM.plan_id,
-        ).filter(
-            Plan.id == params,
-        ).group_by(
-            BOM.id,
-            Plan.id,
-        ).order_by(
-            desc(BOM.process_order),
-        ).first()
+        ).scalar()
     except Exception as e:
         raise e
 
@@ -355,6 +323,20 @@ async def update_workdate(params, new_params):
     # 1. Update Achievement workdate Data
     try:
         params.workdate = new_params.workdate
+        postgresql.session.commit()
+        postgresql.session.refresh(params)
+    except Exception as e:
+        postgresql.session.rollback()
+        raise e
+
+    # 2. Return at Success
+    return params
+
+# Update Achievement note Data
+async def update_note(params, new_params):
+    # 1. Update Achievement workdate Data
+    try:
+        params.note = new_params.note
         postgresql.session.commit()
         postgresql.session.refresh(params)
     except Exception as e:

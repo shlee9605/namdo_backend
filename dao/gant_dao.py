@@ -1,4 +1,4 @@
-from sqlalchemy import and_, asc, desc
+from sqlalchemy import and_, asc, desc, distinct
 from datetime import timedelta
 
 from models import postgresql
@@ -90,6 +90,10 @@ async def read_all_bom_id_by_plan(params):
             Gant, BOM.id == Gant.bom_id
         ).filter(
             BOM.plan_id == params
+        ).group_by(
+            BOM.id,
+        ).order_by(
+            asc(BOM.process_order)
         ).all()
     except Exception as e:
         raise e

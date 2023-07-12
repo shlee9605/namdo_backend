@@ -1,12 +1,11 @@
 import os
-import random
 from sqlalchemy import create_engine
 # from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from models import users, plan, process, facility, bom, gant, achievement
-from models.testdata import input_test_data, add_test_facility_data, add_test_process_data, add_test_bom_data, add_test_plan_data, add_test_gant_data, add_test_achievement_data
+from models.testdata import input_test_data
 # Base = declarative_base()
 
 class PostgreSQL:
@@ -35,12 +34,11 @@ class PostgreSQL:
         # create DB if not exists
         for model in self.models:
             try:
+                model.Base.metadata.create_all(bind=self.engine, checkfirst=True)
+            except IntegrityError:
+                model.Base.metadata.reflect(bind=self.engine)
+                model.Base.metadata.drop_all(bind=self.engine)
                 model.Base.metadata.create_all(bind=self.engine)
-            except ProgrammingError as err:
-                if 'already exists' in str(err):
-                    pass  # If the error is because table already exists, then pass.
-                else:
-                    raise  # If it's a different error, we need to know about it.
 
         # input test data if not exists
         await input_test_data(self.session)

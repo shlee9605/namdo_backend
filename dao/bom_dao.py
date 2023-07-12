@@ -19,7 +19,24 @@ async def create(params):
     # 2. Return at Success
     return params
 
-# Read BOM Data by id
+# Read BOM Data by Gant id
+async def read_by_gant_id(params):
+    # 1. Read BOM Data
+    try:
+        result = postgresql.session.query(
+            BOM
+        ).join(
+            Gant, Gant.bom_id == BOM.id,
+        ).filter(
+            Gant.id==params
+        ).first()
+    except Exception as e:
+        raise e
+
+    # 2. Return at Success
+    return result
+
+#  Read BOM Data by id
 async def read(params):
     # 1. Read BOM Data
     try:
@@ -80,6 +97,8 @@ async def read_all_bom_id_by_plan(params):
             Plan, Plan.id == BOM.plan_id
         ).filter(
             BOM.plan_id == params
+        ).order_by(
+            desc(BOM.process_order)
         ).all()
     except Exception as e:
         raise e
