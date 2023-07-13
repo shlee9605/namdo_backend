@@ -1,4 +1,4 @@
-from sqlalchemy import asc, desc, and_
+from sqlalchemy import asc, desc, and_, func
 
 from models import postgresql
 from models.gant import Gant
@@ -100,6 +100,24 @@ async def read_all_bom_id_by_plan(params):
         ).order_by(
             desc(BOM.process_order)
         ).all()
+    except Exception as e:
+        raise e
+    
+    # 2. Return at Success
+    return result
+# Count Number of BOMS by Plan
+async def count_boms_by_plan(params):
+    # 1. Count BOMS
+    try:
+        result = postgresql.session.query(
+            func.count(BOM.id).label('boms')
+        ).join(
+            Plan, Plan.id == BOM.plan_id,
+        ).filter(
+            Plan.id == params,
+        ).group_by(
+            Plan.id,
+        ).scalar()
     except Exception as e:
         raise e
     

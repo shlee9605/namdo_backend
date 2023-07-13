@@ -6,10 +6,6 @@ from sqlalchemy.orm import Session
 from models import postgresql
 from libs.authUtil import check_Master, current_User
 from models.achievement import Achievement
-from models.gant import Gant
-from models.users import Users
-from models.plan import Plan
-from models.bom import BOM
 from services import achievement_service
 
 router = APIRouter()
@@ -85,8 +81,7 @@ async def achievement_read_detail_accomplishment(gant_id, request: Request,
 @router.get("/achievement/master/{user_name}", status_code=200)
 async def achievement_read_master(user_name, request: Request, 
                     session: Session=Depends(postgresql.connect),
-                    current_user = Depends(check_Master)
-                    ):
+                    current_user = Depends(check_Master)):
     # 1. Check Request
     try:
         params = Achievement(
@@ -97,34 +92,6 @@ async def achievement_read_master(user_name, request: Request,
 
     # 2. Execute Business Logic
     response = await achievement_service.output_master(params)
-
-    # 3. Reponse
-    return response
-
-# read achievement dashboard test data
-@router.get("/achievement/dashboard", status_code=200)
-async def achievement_read_dashboard_test(request: Request, 
-                    param: Optional[str] = None,
-                    session: Session=Depends(postgresql.connect)):
-    
-    # 2. Execute Business Logic
-    response = await achievement_service.output_dashboard_all("none")
-
-    # 3. Reponse
-    return response
-
-# read achievement dashboard data
-@router.get("/achievement/dashboard/{filter}/{date}", status_code=200)
-async def achievement_read_dashboard(request: Request, 
-                    filter: str, date: bool,
-                    param: Optional[str] = None,
-                    session: Session=Depends(postgresql.connect)):
-    # 1. Check Request
-    if filter not in ["company", "product", "process", "facility"]:
-        raise HTTPException(status_code=400, detail="Bad Request")
-
-    # 2. Execute Business Logic
-    response = await achievement_service.output_dashboard(filter, date, param)
 
     # 3. Reponse
     return response

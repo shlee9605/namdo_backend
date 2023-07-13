@@ -81,13 +81,11 @@ async def read_all_by_date(params):
             Gant.start_date,
             Gant.end_date,
             Gant.facility_name,
+            BOM.id.label('bom_id'), 
             BOM.process_name,
             Plan.product_unit,
             Plan.amount,
             Plan.background_color,
-            func.sum(Achievement.accomplishment).label('accomplishment'),
-        ).join(
-            Achievement, Achievement.gant_id == Gant.id,
         ).join(
             BOM, BOM.id == Gant.bom_id,
         ).join(
@@ -103,6 +101,7 @@ async def read_all_by_date(params):
             asc(Gant.start_date),
             asc(Gant.end_date),
         ).all()
+
     except Exception as e:
         raise e
     
@@ -110,20 +109,20 @@ async def read_all_by_date(params):
     return result
 
 # Read All BOM ID by BOM ID
-async def read_all_bom_id_by_plan(params):
+async def count_boms_by_plan(params):
     # 1. Read BOM Data
     try:
         result = postgresql.session.query(
-            BOM.id,
+            func.count(BOM.id.distinct()).label('boms'),
         ).join(
-            Gant, BOM.id == Gant.bom_id
+            Plan, Plan.id == BOM.plan_id,
+        ).join(
+            Gant, Gant.bom_id == BOM.id,
         ).filter(
-            BOM.plan_id == params
+            Plan.id == params,
         ).group_by(
-            BOM.id,
-        ).order_by(
-            asc(BOM.process_order)
-        ).all()
+            Plan.id,
+        ).scalar()
     except Exception as e:
         raise e
     
