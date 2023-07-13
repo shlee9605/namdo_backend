@@ -52,7 +52,7 @@ async def plan_create(request: Request,
     return response
 
 # read Admin plan data
-@router.get("/plan/{made_date}", status_code=200)
+@router.get("/plan/date/{made_date}", status_code=200)
 async def plan_read_admin(made_date, request: Request, 
                     session: Session=Depends(postgresql.connect), 
                     current_user= Depends(check_Admin)):
@@ -70,7 +70,7 @@ async def plan_read_admin(made_date, request: Request,
     return response
 
 # read Detail plan data
-@router.get("/plan/{start_date}/{end_date}", status_code=200)
+@router.get("/plan/date/{start_date}/{end_date}", status_code=200)
 async def plan_detail(start_date, end_date, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     
@@ -91,7 +91,7 @@ async def plan_detail(start_date, end_date, request: Request,
     return response
 
 # read Detail plan state data
-@router.get("/planstate/{id}", status_code=200)
+@router.get("/plan/state/{id}", status_code=200)
 async def plan_detail_state(id, request: Request, 
                     session: Session=Depends(postgresql.connect)):
     
@@ -103,6 +103,23 @@ async def plan_detail_state(id, request: Request,
 
     # 2. Execute Business Logic
     response = await plan_service.output_detail_state(params)
+    
+    # 3. Reponse
+    return response
+
+# read Detail plan gant data
+@router.get("/plan/gantdate/{id}", status_code=200)
+async def plan_detail_gant(id, request: Request, 
+                    session: Session=Depends(postgresql.connect)):
+    
+    # 1. Check Request
+    try:
+        params = int(id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    # 2. Execute Business Logic
+    response = await plan_service.output_detail_gantdate(params)
     
     # 3. Reponse
     return response

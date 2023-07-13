@@ -1,4 +1,4 @@
-from sqlalchemy import asc, desc
+from sqlalchemy import asc
 
 from models import postgresql
 from models.plan import Plan

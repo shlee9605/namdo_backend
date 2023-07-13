@@ -40,6 +40,13 @@ async def output_detail_state(params):
     # 2. return at success
     return result
 
+async def output_detail_gantdate(params):
+    # 1. output plan
+    result = await gant_dao.read_gantdate_by_plan(params)
+
+    # 2. return at success
+    return result
+
 # edit plan data
 async def edit(params):
     # 1. find data

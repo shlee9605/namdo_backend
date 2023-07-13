@@ -41,6 +41,7 @@ async def output(params):
             "end_date": i.end_date,
             "facility_name": i.facility_name,
             "background_color": i.background_color,
+            "accomplishment_ratio": i.accomplishment / i.amount * 100,
         }
         result.append(data)
 
