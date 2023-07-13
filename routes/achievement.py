@@ -178,6 +178,28 @@ async def achievement_update_workdate(request: Request,
     # 3. Response
     return response
 
+# update achievement note data
+@router.put("/achievement/note", status_code=200)
+async def achievement_update_note(request: Request, 
+                    session: Session=Depends(postgresql.connect),
+                    current_user = Depends(current_User)):
+    # 1. Check Request      
+    try:
+        params = await request.json()
+
+        params = Achievement(
+            id = int(params['id']),
+            note = params['note'],
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Bad Request: {str(e)}")
+
+    # 2. Execute Business Logic
+    response = await achievement_service.edit_note(params, current_user)
+
+    # 3. Response
+    return response
+
 # delete achievement data
 @router.delete("/achievement/{id}", status_code=200)
 async def achievement_delete(id, request: Request, 

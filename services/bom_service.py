@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 from models.bom import BOM
-from services import gant_service
+from services import plan_service, gant_service
 from dao import plan_dao, bom_dao, gant_dao, process_dao
 
 # input bom data
@@ -24,20 +24,14 @@ async def input(state, params):
 
     # 4. input bom
     result = await bom_dao.create(params)
-    
+
     # 5. update plan state
-    if plan.bom_state == "Done":
-        await plan_dao.update_state(plan, "Editting")
-    else:
-        await plan_dao.update_state(plan, "Undone")
+    plan_state = await plan_service.set_plan_state(plan)
+    await plan_dao.update_state(plan, plan_state)
 
     # 6. return at success
-    return {
-        "id": result.id,
-        "plan_id": result.plan_id,
-        "process_name": result.process_name,
-        "process_order": result.process_order,
-    }
+    result = await bom_dao.read(result.id)
+    return result
 
 # output bom data
 async def output(params):
@@ -95,10 +89,8 @@ async def edit(state, plan_id, params):
     result = await bom_dao.update(params)
 
     # 5. update plan state
-    if plan.bom_state == "Done":
-        await plan_dao.update_state(plan, "Editting")
-    else:
-        await plan_dao.update_state(plan, "Undone")
+    plan_state = await plan_service.set_plan_state(plan)
+    await plan_dao.update_state(plan, plan_state)
 
     # 6. return at success
     result = await bom_dao.read_all_by_plan(plan_id)
@@ -128,18 +120,11 @@ async def erase(state, params):
     await plan_dao.update_bom_state(plan, state)
     
     # 5. set plan state
-    if plan.bom_state == "Done":
-        await plan_dao.update_state(plan, "Editting")
-    else:
-        await plan_dao.update_state(plan, "Undone")
+    plan_state = await plan_service.set_plan_state(plan)
+    await plan_dao.update_state(plan, plan_state)
 
     # 6. return at success
-    return {
-        "id": result.id,
-        "plan_id": result.plan_id,
-        "process_name": result.process_name,
-        "process_order": result.process_order,
-    }
+    return result
 
 # erase all bom data via plan
 async def erase_all_from_plan(plan_id):

@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from services import achievement_service
+from services import plan_service, achievement_service
 from dao import gant_dao, facility_dao, bom_dao, plan_dao
 
 # input gant data
@@ -16,20 +16,15 @@ async def input(params):
     if plan.bom_state!="Done":   # bom state must be done before input
         raise HTTPException(status_code=404, detail="BOM State Not Done")
     
-    # 2. update plan state
-    total_bom_ids = await bom_dao.read_all_bom_id_by_plan(plan.id)    # number of total boms
- 
-    bom_ids = await gant_dao.read_all_bom_id_by_plan(plan.id)   # number of bom made in gant
-    gant_bom_ids = {bom_id.id for bom_id in bom_ids}
-    gant_bom_ids.add(params.bom_id)
-
-    if len(total_bom_ids)==len(gant_bom_ids) and plan.state == "Editting":
-        await plan_dao.update_state(plan, "Working")
-    
-    # 3. input gant
+    # 2. input gant
     result = await gant_dao.create(params)
 
+    # 3. update plan state
+    plan_state = await plan_service.set_plan_state(plan)
+    await plan_dao.update_state(plan, plan_state)
+
     # 4. return at success
+    result = await gant_dao.read(result.id)
     return result
 
 # output gant data
@@ -46,6 +41,7 @@ async def output(params):
             "end_date": i.end_date,
             "facility_name": i.facility_name,
             "background_color": i.background_color,
+            "accomplishment_ratio": i.accomplishment / i.amount * 100,
         }
         result.append(data)
 
@@ -82,23 +78,18 @@ async def erase(params):
         raise HTTPException(status_code=404, detail="No Existing BOM Data")
     if plan.bom_state!="Done":   # bom state must be done before input
         raise HTTPException(status_code=404, detail="BOM State Not Done")
-    
-    # 2. update plan state
-    total_bom_ids = await bom_dao.read_all_bom_id_by_plan(plan.id)    # number of total boms
-    
-    bom_ids = await gant_dao.read_all_bom_id_by_plan(plan.id)   # number of bom made in gant
-    bom_ids.remove((result.bom_id,))
-    gant_bom_ids = {bom_id.id for bom_id in bom_ids}
 
-    if len(total_bom_ids)>len(gant_bom_ids) and plan.state == "Working":
-        await plan_dao.update_state(plan, "Editting")
-
-    # 3. delete linked achievement datas##########################
+    # 2. delete linked achievement datas
+    await achievement_service.erase_all_from_gant(params.id)
 
     # 3. erase gant
     await gant_dao.delete(result)
 
-    # 4. return at success
+    # 4. update plan state
+    plan_state = await plan_service.set_plan_state(plan)
+    await plan_dao.update_state(plan, plan_state)
+
+    # 5. return at success
     return result
 
 # erase all gant data via bom

@@ -1,7 +1,8 @@
-from sqlalchemy import and_, asc, desc
+from sqlalchemy import and_, asc, func
 from datetime import timedelta
 
 from models import postgresql
+from models.achievement import Achievement
 from models.gant import Gant
 from models.bom import BOM
 from models.plan import Plan
@@ -28,6 +29,27 @@ async def read(params):
             Gant
         ).filter(
             Gant.id==params
+        ).first()
+    except Exception as e:
+        raise e
+
+    # 2. Return at Success
+    return result
+
+# Read ID Plan Date Data
+async def read_gantdate_by_plan(params):
+    # 1. Read Gant Date Data
+    try:
+        result = postgresql.session.query(
+            func.min(Gant.start_date).label('date'),
+        ).join(
+            BOM, BOM.id == Gant.bom_id,
+        ).join(
+            Plan, Plan.id == BOM.plan_id,
+        ).group_by(
+            Plan.id,
+        ).filter(
+            Plan.id==params
         ).first()
     except Exception as e:
         raise e
@@ -63,10 +85,17 @@ async def read_all_by_date(params):
             Plan.product_unit,
             Plan.amount,
             Plan.background_color,
+            func.sum(Achievement.accomplishment).label('accomplishment'),
+        ).join(
+            Achievement, Achievement.gant_id == Gant.id,
         ).join(
             BOM, BOM.id == Gant.bom_id,
         ).join(
             Plan, Plan.id == BOM.plan_id,
+        ).group_by(
+            Gant.id,
+            BOM.id,
+            Plan.id,
         ).filter(
             and_(Gant.start_date<=(params + timedelta(days=30)), 
                 Gant.end_date>=params)
@@ -90,6 +119,10 @@ async def read_all_bom_id_by_plan(params):
             Gant, BOM.id == Gant.bom_id
         ).filter(
             BOM.plan_id == params
+        ).group_by(
+            BOM.id,
+        ).order_by(
+            asc(BOM.process_order)
         ).all()
     except Exception as e:
         raise e

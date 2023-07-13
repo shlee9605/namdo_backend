@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timedelta
 from sqlalchemy.sql import exists
 
 from libs.hashUtil import hashPassword
@@ -156,7 +157,7 @@ async def add_test_plan_data(session):
         background_color="#{:02x}{:02x}{:02x}".format(random.randint(125, 255), random.randint(125, 255),
                                                       random.randint(125, 255)),
         amount=100,
-        state="Editting",
+        state="Done",
         bom_state="Done",
     )
     session.add(Plan1)
@@ -169,7 +170,7 @@ async def add_test_plan_data(session):
         background_color="#{:02x}{:02x}{:02x}".format(random.randint(125, 255), random.randint(125, 255),
                                                       random.randint(125, 255)),
         amount=200,
-        state="Editting",
+        state="Working",
         bom_state="Done",
     )
     session.add(Plan2)
@@ -417,11 +418,148 @@ async def add_test_gant_data(session):
     session.commit()
 
 async def add_test_achievement_data(session):
-    # Achievement1_1_1_1 = Achievement(
-    #     gant_id = 1,
-    #     user_name = "마스터",
-    #     accomplishment = 30,
-    # )
-    # session.add(Achievement1_1_1_1)
+    Achievement1_1_1_1 = Achievement(
+        gant_id = 1,
+        user_name = "어드민",
+        accomplishment = 30,
+        workdate = datetime.now() + timedelta(days=1),
+    )
+    session.add(Achievement1_1_1_1)
+    
+    Achievement1_1_1_2 = Achievement(
+        gant_id = 1,
+        user_name = "워커",
+        accomplishment = 30,
+        workdate = datetime.now() + timedelta(days=1),
+    )
+    session.add(Achievement1_1_1_2)
+
+    Achievement1_1_2_3 = Achievement(
+        gant_id = 2,
+        user_name = "어드민",
+        accomplishment = 20,
+        workdate = datetime.now() + timedelta(days=3),
+    )
+    session.add(Achievement1_1_2_3)
+
+    Achievement1_1_2_4 = Achievement(
+        gant_id = 2,
+        user_name = "워커",
+        accomplishment = 20,
+        workdate = datetime.now() + timedelta(days=3),
+    )
+    session.add(Achievement1_1_2_4)
+
+    Achievement1_2_3_5 = Achievement(
+        gant_id = 3,
+        user_name = "어드민",
+        accomplishment = 50,
+        workdate = datetime.now() + timedelta(days=6),
+    )
+    session.add(Achievement1_2_3_5)
+
+    Achievement1_2_3_6 = Achievement(
+        gant_id = 3,
+        user_name = "워커",
+        accomplishment = 50,
+        workdate = datetime.now() + timedelta(days=5),
+    )
+    session.add(Achievement1_2_3_6)
+
+    Achievement1_3_4_7 = Achievement(
+        gant_id = 4,
+        user_name = "워커",
+        accomplishment = 100,
+        workdate = datetime.now() + timedelta(days=8),
+    )
+    session.add(Achievement1_3_4_7)
+
+    Achievement2_4_5_8 = Achievement(
+        gant_id = 5,
+        user_name = "워커",
+        accomplishment = 50,
+        workdate = datetime.now() + timedelta(days=10),
+    )
+    session.add(Achievement2_4_5_8)
+
+    Achievement2_4_5_9 = Achievement(
+        gant_id = 5,
+        user_name = "어드민",
+        accomplishment = 30,
+        workdate = datetime.now() + timedelta(days=11),
+    )
+    session.add(Achievement2_4_5_9)
+
+    Achievement2_4_6_10 = Achievement(
+        gant_id = 6,
+        user_name = "워커",
+        accomplishment = 50,
+        workdate = datetime.now() + timedelta(days=10),
+    )
+    session.add(Achievement2_4_6_10)
+
+    Achievement2_5_7_11 = Achievement(
+        gant_id = 7,
+        user_name = "워커",
+        accomplishment = 80,
+        workdate = datetime.now() + timedelta(days=15),
+    )
+    session.add(Achievement2_5_7_11)
+
+    Achievement2_5_7_12 = Achievement(
+        gant_id = 7,
+        user_name = "어드민",
+        accomplishment = 80,
+        workdate = datetime.now() + timedelta(days=15),
+    )
+    session.add(Achievement2_5_7_12)
+
+    Achievement2_6_8_13 = Achievement(
+        gant_id = 8,
+        user_name = "워커",
+        accomplishment = 30,
+        workdate = datetime.now() + timedelta(days=15),
+    )
+    session.add(Achievement2_6_8_13)
+
+    Achievement2_6_8_14 = Achievement(
+        gant_id = 8,
+        user_name = "어드민",
+        accomplishment = 30,
+        workdate = datetime.now() + timedelta(days=16),
+    )
+    session.add(Achievement2_6_8_14)
+
+    Achievement2_6_9_15 = Achievement(
+        gant_id = 9,
+        user_name = "워커",
+        accomplishment = 30,
+        workdate = datetime.now() + timedelta(days=15),
+    )
+    session.add(Achievement2_6_9_15)
+
+    Achievement2_6_9_16 = Achievement(
+        gant_id = 9,
+        user_name = "어드민",
+        accomplishment = 30,
+        workdate = datetime.now() + timedelta(days=15),
+    )
+    session.add(Achievement2_6_9_16)
+
+    Achievement2_7_10_17 = Achievement(
+        gant_id = 10,
+        user_name = "워커",
+        accomplishment = 10,
+        workdate = datetime.now() + timedelta(days=18),
+    )
+    session.add(Achievement2_7_10_17)
+
+    Achievement2_7_11_18 = Achievement(
+        gant_id = 11,
+        user_name = "어드민",
+        accomplishment = 20,
+        workdate = datetime.now() + timedelta(days=18),
+    )
+    session.add(Achievement2_7_11_18)
 
     session.commit()
