@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 from services import plan_service, achievement_service
-from dao import gant_dao, facility_dao, bom_dao, plan_dao
+from dao import gant_dao, facility_dao, bom_dao, plan_dao, achievement_dao
 
 # input gant data
 async def input(params):
@@ -34,6 +34,10 @@ async def output(params):
     result = []
 
     for i in datas:
+        accomplishment = await achievement_dao.read_bom_accomplishment(i.bom_id)
+        if accomplishment is None:
+            accomplishment = 0
+
         data = {
             "id": i.id,
             "title": f"{i.product_unit} - {i.process_name} - {i.amount}",
@@ -41,10 +45,10 @@ async def output(params):
             "end_date": i.end_date,
             "facility_name": i.facility_name,
             "background_color": i.background_color,
-            "accomplishment_ratio": i.accomplishment / i.amount * 100,
+            "accomplishment_ratio": accomplishment / i.amount * 100
         }
         result.append(data)
-
+    
     # 2. return at success
     return result
 

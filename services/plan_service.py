@@ -81,13 +81,13 @@ async def set_plan_state(plan):
     # 1. determine undone state (if bom is none, also return undone)
     if plan.bom_state != "Done":
         return "Undone"
-    total_boms = await bom_dao.read_all_bom_id_by_plan(plan.id)
-    if len(total_boms) == 0:
+    total_boms = await bom_dao.count_boms_by_plan(plan.id)
+    if total_boms is None:
         return "Undone"
     
     # 2. determine editting state (if all bom is not on gant chart)
-    boms = await gant_dao.read_all_bom_id_by_plan(plan.id)
-    if len(total_boms) > len(boms):
+    boms = await gant_dao.count_boms_by_plan(plan.id)
+    if total_boms > boms:
         return "Editting"
     
     # 3. determine working state by last bom id

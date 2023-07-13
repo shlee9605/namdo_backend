@@ -71,43 +71,6 @@ async def output_master(params):
     # 2. return at success
     return result
 
-# output achievement Dashboard data test
-async def output_dashboard_all(params):
-    # 1. output achievement
-    result = await achievement_dao.read_dashboard(params)
-
-    # 2. return at success
-    return result
-
-# output achievement Dashboard data
-async def output_dashboard(filter, date, params):
-    # 1. check request & output achievement
-    if filter == "company" and date is True:
-        result = await achievement_dao.read_dashboard_company_date(params)
-    elif filter == "company" and date is False:
-        result = await achievement_dao.read_dashboard_company(params)
-
-    elif filter == "product" and date is True:
-        result = await achievement_dao.read_dashboard_product_date(params)
-    elif filter == "product" and date is False:
-        result = await achievement_dao.read_dashboard_product(params)
-
-    elif filter == "process" and date is True:
-        result = await achievement_dao.read_dashboard_process_date(params)
-    elif filter == "process" and date is False:
-        result = await achievement_dao.read_dashboard_process(params)
-    
-    elif filter == "facility" and date is True:
-        result = await achievement_dao.read_dashboard_facility_date(params)
-    elif filter == "facility" and date is False:
-        result = await achievement_dao.read_dashboard_facility(params)
-
-    else:
-        raise HTTPException(status_code=404, detail="No Data Found")
-
-    # 2. return at success
-    return result
-
 # edit achievement accomplishment data
 async def edit_accomplishment(params, current_user):
     # 1. find data
